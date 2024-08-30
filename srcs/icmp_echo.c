@@ -6,7 +6,7 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 23:55:07 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/29 21:36:53 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/08/30 04:13:20 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ t_icmp_packet make_icmp_echo(U32 srcaddr, U32 dstaddr, U64 payload_size, U16 seq
 	t_icmp_header *icmp_header;
 	U8 *payload;
 
-	payload_size += sizeof(U64); //TMP
+	payload_size += sizeof(U64);
 
 	packet_size = sizeof(t_ip_header) + icmp_echo_header_size + payload_size;
 	if ((packet = malloc(packet_size)) == NULL)

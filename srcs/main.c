@@ -6,7 +6,7 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 17:17:24 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/29 22:02:38 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/08/30 04:20:25 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,12 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
+#include <math.h>
 
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 
+#include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <net/if.h>
 #define __USE_XOPEN2K 1
@@ -44,15 +46,9 @@ static void sigint_handler(S32 sig);
 
 static void print_help();
 static void print_statistics_and_exit();
-/*
-Opens raw socket ( socket(AF_INET, SOCK_RAW, IPPROTO_ICMP) )
-+ setsockopt IPPROTO_IP IP_HDRINCL
-+ setsockopt SOL_SOCKET SO_BROADCAST
-*/
-static file init_socket(bool so_debug, S64 mark);
-static bool get_host_addr(U32 *addr);
 
-static S64 send_data(file sock, U8 *data, S64 data_size, U32 addr);
+static bool dns_lookup(string addr_str, U32 *addr_out);
+static string reverse_dns_lookup(U32 addr, bool verbose);
 
 /* stats */
 U32 errors;
@@ -62,61 +58,64 @@ t_clock total_clk;
 
 U32 dstaddr;
 
+/* rtt */
+F32 rtt;
+F32 *rtt_buffer;
+U64 rtt_buffer_cnt;
+U64 rtt_buffer_alloc;
+
 int main(S32 argc, const_string *argv)
 {
-	bool running_as_root;
+	uid_t uid;
 	/* parameters */
 	bool verbose;
-	bool audible;
-	F32 interval; // secs
-	S32 count;
-	bool print_timestamps;
-	bool so_debug;
-	bool flood;
-	S64 mark;
-	t_time timeout;
-	U8 ttl;
-	S32 sndbuf;
-
-	U64 payload_size;
-	U16 seq;
-	U32 srcaddr;
+	bool audible;			  /* makes bell sound for each ping received */
+	F32 interval;			  /* interval in secs between each ping sent. defaults to 1. The program needs to be run as root to be under 2ms */
+	S32 count;				  /* amount of pings to send before stopping. -1 means infinite (default) */
+	bool print_timestamps;	  /* print timestamps before each pings */
+	bool so_debug;			  /* set the sock opt SO_DEBUG */
+	bool flood;				  /* set the interval to 0. Requires the program to be run as root */
+	S64 mark;				  /* mark packets. -1 means no marking (default) */
+	t_time timeout;			  /* duration to wait for a ping reply */
+	U8 ttl;					  /* time to live */
+	S32 sndbuf;				  /* SO_SNDBUF size. -1 means no change (default) */
+	string interface_name;	  /* interface to send the ping through. NULL means auto */
+	bool interface_specified; /* TRUE if interface_name was specified in the args */
+	S32 deadline;			  /* time in secs after which the program exits. 0 means infinite */
+	U64 payload_size;		  /* ICMP payload size. defaults to 56 */
+	U16 seq;				  /* ICMP seq value (auto incremented each ping sent) */
+	U32 srcaddr;			  /* source address taken from interface */
 	/* icmp */
-	file sock;
-	t_icmp_packet packet;
-	/* recvfrom */
-	U8 recv_buff[65535]; // Max IP packet size
-	S64 received;
-	t_ip_header *reply_iphdr;
-	t_icmp_header *reply_icmphdr;
-	U8 *reply_payload;
-	/* timers */
-	t_clock clk;
-	S64 secs, nsecs;
-	t_time timestamp;
+	file sock;			  /* socket fd */
+	t_icmp_packet packet; /* icmp packet to send */
+	/* recvfrom/sendto */
+	S64 sent_recv;				  /* total data sent/receive */
+	U8 recv_buff[65535];		  /* buffer for recvfrom. 65535 is the max IP packet size */
+	t_ip_header *reply_iphdr;	  /* IP header from reply */
+	t_icmp_header *reply_icmphdr; /* ICMP header from reply */
+	U8 *reply_payload;			  /* payload from reply */
 	/* utils */
+	t_time timestamp;
+	S32 opt;
 	S64 i;
+	void *j;
+	struct sockaddr_in dummy_addr;
 
 	signal(SIGINT, sigint_handler);
 
 	seq = 1;
-	ft_clk_init(&clk);
 
 	errors = 0;
 	n_packets_sent = 0;
 	n_packets_received = 0;
 	ft_clk_init(&total_clk);
 
-	running_as_root = getuid() == 0;
+	uid = getuid();
 
-	{ // Args
-		S32 v;
+	{					 // Args parsing
+		ft_optchr = '!'; /* Change return character for unknown args from '?' to '!' because we need to check for option '-?' */
 
-		// Change return character for unknown args to '!' because we need to check for '-?'
-		ft_optchr = '!';
-
-		// Default to 56 - sizeof(U64) (timestamp)
-		payload_size = 56 - sizeof(U64);
+		payload_size = 56 - sizeof(U64); /* ICMP packet is 8, so 56 + 8 = 64 bytes of data each packet */
 
 		audible = FALSE;
 		verbose = FALSE;
@@ -126,14 +125,17 @@ int main(S32 argc, const_string *argv)
 		so_debug = FALSE;
 		flood = FALSE;
 		mark = -1;
-		timeout.seconds = 0;
+		timeout.seconds = 1;
 		timeout.nanoseconds = 0;
 		ttl = U8_MAX;
 		sndbuf = -1;
+		interface_name = NULL;
+		interface_specified = FALSE;
+		deadline = 0;
 
-		while ((v = ft_getopt(argc, argv, "ac:Ddfi:m:t:s:S:vW:?")) != -1)
+		while ((opt = ft_getopt(argc, argv, "ac:DdfI:i:m:t:s:S:vW:w:?")) != -1)
 		{
-			switch (v)
+			switch (opt)
 			{
 			case 'a':
 				audible = TRUE;
@@ -156,6 +158,11 @@ int main(S32 argc, const_string *argv)
 				so_debug = TRUE;
 				break;
 
+			case 'I':
+				interface_name = (string)ft_optarg;
+				interface_specified = TRUE;
+				break;
+
 			case 'f':
 				ft_optarg = "0";
 				flood = TRUE;
@@ -167,7 +174,7 @@ int main(S32 argc, const_string *argv)
 					return 1;
 				}
 				interval = ft_atof(ft_optarg);
-				if (!running_as_root && interval < 0.2f)
+				if (uid != 0 && interval < 0.002f)
 				{
 					ft_dprintf(ft_errno, "%s: cannot flood; minimal interval allowed for user is 2ms\n", ft_argv[0]);
 					return 1;
@@ -226,6 +233,20 @@ int main(S32 argc, const_string *argv)
 				ttl = ttl_val;
 				break;
 
+			case 'w':
+				if (!ft_str_isnbr((string)ft_optarg))
+				{
+					ft_dprintf(ft_errno, "%s: invalid argument: '%s'\n", ft_argv[0], ft_optarg);
+					return 1;
+				}
+				deadline = ft_atoi(ft_optarg);
+				if (deadline < 0)
+				{
+					ft_dprintf(ft_errno, "%s: invalid argument: '%s': out of range: 0 <= value <= 2147483647\n", ft_argv[0], ft_optarg);
+					return 1;
+				}
+				break;
+
 			case 'W':
 				if (!ft_str_isnbr((string)ft_optarg))
 				{
@@ -261,25 +282,96 @@ int main(S32 argc, const_string *argv)
 			return 1;
 		}
 
-		if (inet_aton(argv[ft_optind], (struct in_addr *)&dstaddr) == -1)
-		{
-			ft_dprintf(ft_stderr, "%s: %s: Name or service not known\n", ft_argv[0]);
+		if (!dns_lookup((string)argv[ft_optind], &dstaddr))
 			return 2;
-		}
 
 		interval *= 1e6;
 	}
 
-	if (get_host_addr(&srcaddr) == FALSE)
-		return 1;
+	{ /* Get own IP address from interface */
+		struct ifaddrs *ifaddr, *ifa;
+		struct sockaddr_in *sa;
+
+		if (getifaddrs(&ifaddr) == -1)
+		{
+			ft_dprintf(ft_stderr, "%s: getifaddrs: %s", ft_argv[0], strerror(errno));
+			return 1;
+		}
+
+		srcaddr = 0;
+		if (interface_name == NULL)
+		{
+			/* No interface specified */
+			for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+			{
+				if (ifa->ifa_addr == NULL || !ft_strcmp(ifa->ifa_name, "lo"))
+					continue;
+
+				if (ifa->ifa_addr->sa_family == AF_INET)
+				{
+					sa = (struct sockaddr_in *)ifa->ifa_addr;
+					if ((sa->sin_addr.s_addr & ifa->ifa_netmask->sa_data[0]) ==
+						(dstaddr & ifa->ifa_netmask->sa_data[0]))
+					{
+						interface_name = ifa->ifa_name;
+						srcaddr = sa->sin_addr.s_addr;
+						break;
+					}
+				}
+			}
+			if (srcaddr == 0)
+			{
+				ft_dprintf(ft_stderr, "%s: no interface found\n", ft_argv[0]);
+				return 1;
+			}
+		}
+		else
+		{
+			/* Search for specified interface */
+			for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+			{
+				if (ifa->ifa_addr == NULL || ifa->ifa_addr->sa_family != AF_INET)
+					continue;
+
+				if (!ft_strcmp(ifa->ifa_name, interface_name))
+				{ /* Found match */
+					sa = (struct sockaddr_in *)ifa->ifa_addr;
+					srcaddr = sa->sin_addr.s_addr;
+					break;
+				}
+			}
+			if (srcaddr == 0)
+			{
+				ft_dprintf(ft_stderr, "%s: couldn't find interface: %s\n", ft_argv[0], interface_name);
+				return 1;
+			}
+		}
+		freeifaddrs(ifaddr);
+	}
+
+	{ /* Round-trip-time stats initialization */
+		rtt_buffer = NULL;
+		rtt_buffer_cnt = 0;
+		rtt_buffer_alloc = 20;
+		if ((rtt_buffer = malloc(sizeof(F32) * rtt_buffer_alloc)) == NULL)
+		{
+			ft_dprintf(ft_stderr, "%s: out of memory\n", ft_argv[0]);
+			return 1;
+		}
+	}
 
 	{
 		S32 on = 1;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-result"
+		(void)setuid(0);
 		if ((sock = ft_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
 		{
 			ft_dprintf(ft_stderr, "error: socket: %s\n", strerror(errno));
 			return -1;
 		}
+		(void)setuid(uid);
+#pragma GCC diagnostic pop
 
 		if (setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1)
 		{
@@ -350,37 +442,43 @@ int main(S32 argc, const_string *argv)
 				ft_printf(".");
 		}
 
-		if (send_data(sock, packet.packet, packet.packet_size, dstaddr) == -1)
+		sent_recv = 0;
+		dummy_addr = (struct sockaddr_in){0};
+		dummy_addr.sin_family = AF_INET;
+		dummy_addr.sin_addr.s_addr = dstaddr;
+		i = 0;
+		while (packet.packet_size - sent_recv > 0 &&
+			   (i = sendto(sock, packet.packet + sent_recv, packet.packet_size - sent_recv, 0, (struct sockaddr *)&dummy_addr, sizeof(struct sockaddr_in))) > 0)
+			sent_recv += i;
+		if (i < 0)
 		{
-			ft_dprintf(ft_stderr, "%s: send: %s\n", ft_argv[0], strerror(errno));
-			return 1;
+			ft_dprintf(ft_stderr, "error: sendto: %s\n", strerror(errno)); // TODO: check ping error codes + error message
+			return -1;
 		}
 		n_packets_sent++;
 
-		{ // Receive response
+		{ // Try to receive a response
 			i = 0;
-			received = 0;
+			sent_recv = 0;
 
 			reply_iphdr = NULL;
 			reply_icmphdr = NULL;
 			reply_payload = NULL;
 
-			ft_memset(recv_buff, 2, sizeof(recv_buff));
-
 			do
 			{
-				i = recvfrom(sock, recv_buff + received, sizeof(recv_buff) - received, 0, NULL, NULL);
-				received += i;
+				i = recvfrom(sock, recv_buff + sent_recv, sizeof(recv_buff) - sent_recv, 0, NULL, NULL);
+				sent_recv += i;
 
-				if (received >= (S64)sizeof(t_ip_header) && reply_iphdr == NULL)
+				if (sent_recv >= (S64)sizeof(t_ip_header) && reply_iphdr == NULL)
 				{
 					reply_iphdr = (t_ip_header *)recv_buff;
 					reply_iphdr->len = htons(reply_iphdr->len);
 				}
 			} while (
 				(i > 0) &&
-				((!reply_iphdr) ||				// IP header (without options) not yet received
-				 (received < reply_iphdr->len)) // Full IP packet not yet received
+				((!reply_iphdr) ||				 /* IP header (without options) not yet received */
+				 (sent_recv < reply_iphdr->len)) /* Full IP packet not yet received */
 			);
 
 			if (i < 0)
@@ -400,35 +498,55 @@ int main(S32 argc, const_string *argv)
 			{
 				reply_icmphdr = (t_icmp_header *)(recv_buff + reply_iphdr->ihl * 4);
 				reply_payload = ((U8 *)reply_icmphdr) + 8;
-				n_packets_received++;
 			}
 		}
 
-		if (flood == FALSE)
-		{
-			if (print_timestamps)
-				ft_printf("[%ld.%.6ld] ", timestamp.seconds, timestamp.nanoseconds);
+		if (print_timestamps && !flood)
+			ft_printf("[%ld.%.6ld] ", timestamp.seconds, timestamp.nanoseconds);
 
-			if (reply_iphdr && reply_icmphdr)
+		if (reply_iphdr && reply_icmphdr)
+		{
+			if (audible && !flood)
+				ft_printf("\a");
+
+			switch (reply_icmphdr->type)
 			{
-				if (audible)
-					ft_printf("\a");
-				switch (reply_icmphdr->type)
+			case ICMP_MSG_ECHO_REPLY:
+				rtt = (F32)(ft_clk_timestamp() - *(U64 *)(reply_payload)) / 1000.0f;
+				if (rtt_buffer_cnt >= rtt_buffer_alloc)
 				{
-				case ICMP_MSG_ECHO_REPLY:
+					j = rtt_buffer;
+					if ((rtt_buffer = malloc(sizeof(F32) * rtt_buffer_alloc * 2)) == NULL)
+					{
+						ft_dprintf(ft_errno, "%s: out of memory\n", ft_argv[0]);
+						return 1;
+					}
+					ft_memcpy(rtt_buffer, j, sizeof(F32) * rtt_buffer_alloc);
+					rtt_buffer_alloc *= 2;
+				}
+				rtt_buffer[rtt_buffer_cnt] = rtt;
+				rtt_buffer_cnt++;
+
+				if (!flood)
+				{
 					printf("%u bytes from %s: icmp_seq=%u ttl=%u time=%.1fms\n",
 						   reply_iphdr->len - reply_iphdr->ihl * 4,
 						   addr_to_str(reply_iphdr->src_addr),
 						   reply_icmphdr->req.echo_reply.seq,
 						   reply_iphdr->ttl,
-						   (F32)(ft_clk_timestamp() - *(U64 *)(reply_payload)) / 1000.0f);
-					break;
-				default:
+						   rtt);
+					fflush(stdout);
+				}
+				n_packets_received++;
+				break;
+			default:
+				if (!flood)
+				{
 					ft_printf("From %s icmp_seq=%u ", addr_to_str(reply_iphdr->src_addr), seq);
 					icmp_print_error(reply_iphdr, reply_icmphdr, verbose);
-					errors++;
-					break;
 				}
+				errors++;
+				break;
 			}
 		}
 
@@ -440,6 +558,19 @@ int main(S32 argc, const_string *argv)
 		seq++;
 		while (ft_clk_timestamp() - ft_clk_to_timestamp(timestamp) < interval)
 			;
+
+		if (deadline)
+		{
+			S64 secs, nsecs;
+			ft_clk_stop(&total_clk);
+			ft_clk_diff(&total_clk.t1, &total_clk.t2, &secs, &nsecs);
+
+			if (secs > deadline)
+			{
+				close(sock);
+				print_statistics_and_exit();
+			}
+		}
 	}
 
 	close(sock);
@@ -447,99 +578,54 @@ int main(S32 argc, const_string *argv)
 	return 0;
 }
 
-char *reverse_dns_lookup(char *ip_str, int family)
+static string reverse_dns_lookup(U32 addr, bool verbose)
 {
-	t_sa_in sa_in;
-	char buff_hostname[NI_MAXHOST];
-	int status;
+	static char buffer[NI_MAXHOST];
+	struct sockaddr_in sockaddr;
+	S32 ret;
 
-	if ((status = inet_pton(family, ip_str, (family == AF_INET ? (void *)&sa_in.ip4.sin_addr : (void *)&sa_in.ip6.sin6_addr))) == -1)
-		PERROR("inet_pton");
-	if (status == 0)
-	{
-		dprintf(STDERR_FILENO, "%s: inet_pton: Invalid string\n", PROG_NAME);
-		exit_clean(EXIT_FAILURE);
-	}
-	if (family == AF_INET)
-	{
-		sa_in.ip4.sin_family = family;
-		sa_in.ip4.sin_port = 0;
-	}
-	else
-	{
-		sa_in.ip6.sin6_family = family;
-		sa_in.ip6.sin6_port = 0;
-	}
+	sockaddr.sin_family = AF_INET;
+	sockaddr.sin_port = 0;
+	sockaddr.sin_addr = (struct in_addr){addr};
 
-	if ((status = getnameinfo((family == AF_INET ? (struct sockaddr *)&sa_in.ip4 : (struct sockaddr *)&sa_in.ip6), (family == AF_INET ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6)), buff_hostname, sizeof(buff_hostname), NULL, 0, NI_NAMEREQD)) != 0)
+	if ((ret = getnameinfo((struct sockaddr *)&sockaddr, sizeof(struct sockaddr_in), buffer, sizeof(buffer), NULL, 0, NI_NAMEREQD)) != 0)
 	{
-		if (g_ping->options.set[e_option_verbose])
-			dprintf(STDERR_FILENO, "%s: getnameinfo: %s\n", PROG_NAME, gai_strerror(status)); // not authorized by the subject but it would be stupid to not do it
-		return (NULL);
+		if (verbose)
+			dprintf(STDERR_FILENO, "%s: getnameinfo: %s\n", ft_argv[0], gai_strerror(ret));
+		return NULL;
 	}
-	return (ft_strdup(buff_hostname));
+	return buffer;
 }
 
-bool resolve_ip(char *dest, struct s_ping *ping)
+static bool dns_lookup(string addr_str, U32 *addr_out)
 {
 	struct addrinfo hints;
 	struct addrinfo *res;
-	struct addrinfo *tmp_ptr;
+	struct addrinfo *res2;
 	S32 ret;
-	const char *tmp_str = NULL;
 
 	hints = (struct addrinfo){0};
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 
-	if ((ret = getaddrinfo(dest, NULL, &hints, &res)) != 0)
+	if ((ret = getaddrinfo(addr_str, NULL, &hints, &res)) != 0)
 	{
 		ft_dprintf(ft_stderr, "%s: getaddrinfo: %s\n", ft_argv[0], gai_strerror(ret));
 		return FALSE;
 	}
+	res2 = res;
+	while (res->ai_family != AF_INET)
+		res = res->ai_next;
 
-	tmp_ptr = res;
-	while (tmp_ptr)
+	if (!res)
 	{
-		ft_memcpy(&(ping->dest.sa_in.ip4), (void *)tmp_ptr->ai_addr, sizeof(struct sockaddr_in));
-		tmp_str = inet_ntop(AF_INET, &(ping->dest.sa_in.ip4.sin_addr), ping->dest.ip, INET_ADDRSTRLEN);
-		ping->dest.family = AF_INET;
-		if (!ping->options.set[e_option_version] || (ping->options.set[e_option_version] && ping->options.version == e_ip4))
-			break;
-		tmp_ptr = tmp_ptr->ai_next;
-	}
-	freeaddrinfo(res); // not authorized by the subject but it would be stupid to not do it
-	if (!tmp_str)
-		PERROR("inet_ntop");
-	if (!tmp_ptr)
-	{
-		dprintf(STDERR_FILENO, "%s: %s: No address associated with hostname\n", PROG_NAME, dest);
-		exit_clean(EXIT_FAILURE);
-	}
-}
-
-static bool get_host_addr(U32 *addr)
-{
-	file sock;
-	struct ifreq ifr = {0};
-
-	if ((sock = ft_socket(AF_INET, SOCK_DGRAM, 0)) == (file)-1)
-	{
-		ft_dprintf(ft_stderr, "error: socket 2\n");
-		return FALSE;
-	}
-	ifr.ifr_addr.sa_family = AF_INET;
-	ft_strlcpy(ifr.ifr_name, "wlo1", IFNAMSIZ - 1);
-
-	if (ioctl(sock, SIOCGIFADDR, &ifr) == -1)
-	{
-		ft_dprintf(ft_stderr, "error: ioctl: %s\n", strerror(errno));
-		close(sock);
+		ft_dprintf(ft_stderr, "%s: %s: No address associated with hostname\n", ft_argv[0], addr_str);
 		return FALSE;
 	}
 
-	close(sock);
-	*addr = ((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr;
+	*addr_out = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
+	freeaddrinfo(res2);
+
 	return TRUE;
 }
 
@@ -548,22 +634,6 @@ string addr_to_str(U32 addr)
 	static char buf[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &addr, buf, sizeof(buf));
 	return buf;
-}
-
-static S64 send_data(file sock, U8 *data, S64 data_size, U32 addr)
-{
-	S64 sent = 0, tmp = 0;
-	struct sockaddr_in addr_in = {0};
-	addr_in.sin_addr.s_addr = addr;
-
-	while (data_size - sent > 0 && (tmp = sendto(sock, data + sent, data_size - sent, 0, (struct sockaddr *)&addr_in, sizeof(struct sockaddr_in))) > 0)
-		sent += tmp;
-	if (tmp < 0)
-	{
-		ft_dprintf(ft_stderr, "error: sendto: %s\n", strerror(errno)); // TODO: check ping error codes + error message
-		return -1;
-	}
-	return sent;
 }
 
 static void sigint_handler(S32 sig)
@@ -575,18 +645,51 @@ static void sigint_handler(S32 sig)
 static void print_statistics_and_exit()
 {
 	S64 secs, nsecs;
+	F32 rtt_min, rtt_max, rtt_avg, rtt_mdev;
 
 	ft_clk_stop(&total_clk);
 	ft_clk_diff(&total_clk.t1, &total_clk.t2, &secs, &nsecs);
 
 	ft_printf("\n--- %s ping statistics ---\n", addr_to_str(dstaddr));
-	printf("%u packets transmitted, %u received, %.2f%% packet loss, time %.0fms\n",
-		   n_packets_sent,
-		   n_packets_received,
+	ft_printf("%u packets transmitted, %u received, ",
+			  n_packets_sent,
+			  n_packets_received);
+	if (errors)
+		ft_printf("+%u errors, ", errors);
+	printf("%.2f%% packet loss, time %.0fms\n",
 		   (F32)(n_packets_sent - n_packets_received) * 100.0f / (F32)(n_packets_sent),
 		   (F32)(nsecs / 1e6) + (secs * 1000));
+	fflush(stdout);
 
+	if (rtt_buffer_cnt == 0)
+		exit(0);
+
+	ft_printf("rtt min/avg/max/mdev = ");
+	rtt_min = F32_MAX;
+	rtt_max = F32_MIN;
+	rtt_avg = 0;
+	for (U64 i = 0; i < rtt_buffer_cnt; i++)
+	{
+		rtt_min = rtt_buffer[i] < rtt_min ? rtt_buffer[i] : rtt_min;
+		rtt_max = rtt_buffer[i] > rtt_max ? rtt_buffer[i] : rtt_max;
+		rtt_avg += rtt_buffer[i];
+	}
+	rtt_avg /= rtt_buffer_cnt;
+
+	rtt_mdev = 0.0f;
+	for (U64 i = 0; i < rtt_buffer_cnt; i++)
+		rtt_mdev += (rtt_buffer[i] - rtt_avg) * (rtt_buffer[i] - rtt_avg);
+	rtt_mdev = sqrtf(rtt_mdev / (F32)rtt_buffer_cnt);
+
+	printf("%.3f/%.3f/%.3f/%.3f ms\n", rtt_min, rtt_avg, rtt_max, rtt_mdev);
+	fflush(stdout);
 	exit(0);
+}
+
+__attribute__((destructor)) void on_program_exit()
+{
+	if (rtt_buffer)
+		free(rtt_buffer);
 }
 
 /*
@@ -604,7 +707,6 @@ TODO:
 -r
 -U
 -V
--w
 */
 static void print_help()
 {
@@ -621,7 +723,7 @@ Options:\n\
   -d                 use SO_DEBUG socket option\n\
   -f                 flood ping\n\
   -h                 print help and exit\n\
-  -I <interface>     either interface name or address\n\
+  -I <interface>     either interface name\n\
   -i <interval>      seconds between sending each packet\n\
   -L                 suppress loopback of multicast packets\n\
   -l <preload>       send <preload> number of packages while waiting replies\n\

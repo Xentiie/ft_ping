@@ -6,7 +6,7 @@
 #    By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/25 09:55:54 by reclaire          #+#    #+#              #
-#    Updated: 2024/08/27 18:12:52 by reclaire         ###   ########.fr        #
+#    Updated: 2024/08/30 02:25:29 by reclaire         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,8 +20,9 @@ INCLUDES  	+=	-I./ -I./srcs
 $(NAME):	_libft $(OBJS)
 			$(CC) $(CFLAGS) $(INCLUDES) $(LIBS_PATHS) $(OBJS) $(LIBS) -o $(NAME)
 
-test:
-	$(CC) -DFT_OS_LINUX -fprofile-generate -fprofile-arcs -ftest-coverage -I./ ./test.c -L./ -lft -o test
+install: $(NAME)
+			chown root:root ./$(NAME)
+			chmod u+s ./$(NAME)
 
 _libft:
 	$(MAKE) -C ../libft
