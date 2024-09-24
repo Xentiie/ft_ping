@@ -6,11 +6,10 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 17:17:24 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/03 03:52:51 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/09/24 19:02:06 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_ping.h"
 #include "libft/std.h"
 #include "libft/limits.h"
 #include "libft/strings.h"
@@ -45,10 +44,204 @@
 #include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
 
+
+typedef struct s_ip_header
+{
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	U8 ihl:4; // Internet header length
+	U8 ver:4; // 4:IPv4 6:IPv6
+#else
+	U8 ver:4; // 4:IPv4 6:IPv6
+	U8 ihl:4; // Header length
+#endif
+	U8 tos; // Deprecated. 0
+	U16 len; // Total packet length
+	U16 id; // Identification
+	U16 flgs_frg; // Flags / frag off
+	U8 ttl;
+	U8 protocol;
+	U16 check; // Header checksum
+	U32 src_addr;
+	U32 dst_addr;
+	/* opts */
+}	t_ip_header;
+
+#define ICMP_MSG_DESTINATION_UNREACHABLE 3
+#define ICMP_MSG_TIME_EXCEEDED 11
+#define ICMP_MSG_PARAMETER_PROBLEM 12
+#define ICMP_MSG_SOURCE_QUENCH 4
+#define ICMP_MSG_REDIRECT 5
+#define ICMP_MSG_ECHO 8
+#define ICMP_MSG_ECHO_REPLY 0
+#define ICMP_MSG_TIMESTAMP 13
+#define ICMP_MSG_TIMESTAMP_REPLY 14
+#define ICMP_MSG_INFORMATION 15
+#define ICMP_MSG_INFORMATION_REPLY 16
+
+#define ICMP_HEADER_MIN_SIZE 8
+#define ICMP_HEADER_MAX_SIZE 20
+typedef struct s_icmp_header
+{
+	U8 type;
+	U8 code;
+	U16 checksum;
+
+	union {
+		struct {
+			U16 id;
+			U16 seq;
+		};
+
+		/*
+		Destination unreachable
+		type: 3
+		codes:
+		0 = net unreachable (gateway)
+		1 = host unreachable (gateway)
+		2 = protocol unreachable (host)
+		3 = port unreachable (host)
+		4 = fragmentation needed and DF set (gateway)
+		5 = source route failed (gateway)
+		*/
+		struct {
+			U32 unused;
+		} dest_unreachable;
+		
+		/*
+		Time exceeded
+		type: 11
+		codes:
+		0 = ttl exceeded in transit
+		1 = fragment reassembly time exceeded
+		*/
+		struct {
+			U32 unused;
+		} time_exceeded;
+	
+		/*
+		Invalid ICMP header
+		type: 12
+		codes:
+		0 = ptr indicates the byte ofs where there is an error
+		*/
+		struct {
+			U32 ptr; // >> 24
+		} param_problem;
+
+		/*
+		Gateway couldn't process the message
+		type: 4
+		codes:
+		0 =
+		*/
+		struct {
+			U32 unused;
+		} src_quench;
+	
+		/*
+		Redirect
+		type: 5
+		codes:
+		0 = Redirect datagrams for the Network
+		1 = Redirect datagrams for the Host
+		2 = Redirect datagrams for the Type of Service and Network
+		3 = Redirect datagrams for the Type of Service and Host	
+		*/
+		struct {
+			U32 gateway_addr;
+		} redirect;
+
+		/*
+		Echo
+		type: 8
+		codes:
+		0 = id is set to track messages
+		*/
+		struct {
+			U16 id;
+			U16 seq;
+		} echo;
+
+		/*
+		Echo reply
+		type: 0
+		codes:
+		0 = id is set to track messages
+		*/
+		struct {
+			U16 id;
+			U16 seq;
+		} echo_reply;
+
+		/*
+		Timestamp
+		type: 13
+		codes:
+		0 = id is set to track messages
+		*/
+		struct {
+			U16 id;
+			U16 seq;
+			U32 src_timestamp;
+			U32 rcv_timestamp;
+			U32 transmit_timestamp;
+		} timestamp;
+
+		/*
+		Timestamp reply
+		type: 14
+		codes:
+		0 = id is set to track messages
+		*/
+		struct {
+			U16 id;
+			U16 seq;
+			U32 src_timestamp;
+			U32 rcv_timestamp;
+			U32 transmit_timestamp;
+		} timestamp_reply;
+
+		/*
+		Information request
+		type: 15
+		codes:
+		0 = id is set to track messages
+		*/
+		struct {
+			U16 id;
+			U16 seq;
+		} information;
+
+		/*
+		Information reply
+		type: 16
+		codes:
+		0 = id is set to track messages
+		*/
+		struct {
+			U16 id;
+			U16 seq;
+		} information_reply;
+	} req;
+}	t_icmp_header;
+
+typedef struct s_icmp_packet
+{
+	U8 *packet;
+	U64 packet_size;
+	t_ip_header *ip_hdr;
+	t_icmp_header *icmp_hdr;
+	U8 *payload;
+} t_icmp_packet;
+
+
 static void sigint_handler(S32 sig);
 
 static U16 checksum(U16 *ptr, U64 nbytes);
 
+static string addr_to_str(U32 addr);
+
+static void icmp_print_error(t_ip_header *ip_hdr, t_icmp_header *hdr, bool verbose);
 static void print_help();
 static void print_statistics_and_exit();
 
@@ -69,6 +262,7 @@ U64 rtt_buffer_alloc;
 int main(S32 argc, const_string *argv)
 {
 	uid_t uid;
+	pid_t pid;
 	/* parameters */
 	bool verbose;
 	bool audible;			  /* makes bell sound for each ping received */
@@ -143,8 +337,9 @@ int main(S32 argc, const_string *argv)
 	ft_clk_init(&total_clk);
 
 	uid = getuid();
+	pid = getpid();
 
-	{ /* Args parsing */
+	{					 /* Args parsing */
 		ft_optchr = '!'; /* Change return character for unknown args from '?' to '!' because we need to check for option '-?' */
 
 		payload_size = 56 - sizeof(U64); /* ICMP packet is 8, so 56 + 8 = 64 bytes of data each packet */
@@ -609,7 +804,7 @@ int main(S32 argc, const_string *argv)
 
 			icmp_header->type = ICMP_MSG_ECHO;
 			icmp_header->code = 0;
-			icmp_header->req.echo.id = rand();
+			icmp_header->req.echo.id = pid;
 			icmp_header->req.echo.seq = seq;
 			icmp_header->checksum = 0;
 			icmp_header->checksum = checksum((U16 *)icmp_header, icmp_echo_header_size + payload_size);
@@ -638,7 +833,9 @@ int main(S32 argc, const_string *argv)
 			ft_dprintf(ft_stderr, "error: sendto: %s\n", strerror(errno)); // TODO: check ping error codes + error message
 			return -1;
 		}
+		n_packets_sent++;
 
+	recv_response:;
 		{ // Try to receive a response
 			i = 0;
 			sent_recv = 0;
@@ -667,8 +864,8 @@ int main(S32 argc, const_string *argv)
 			{
 				if (errno == EINTR || errno == EAGAIN)
 				{
-					if (verbose)
-						ft_dprintf(ft_stderr, "%s: Request timed out for icmp_seq=%u\n", ft_argv[0], seq);
+					//if (verbose)
+					//	ft_dprintf(ft_stderr, "%s: Request timed out for icmp_seq=%u\n", ft_argv[0], seq);
 				}
 				else
 				{
@@ -682,7 +879,24 @@ int main(S32 argc, const_string *argv)
 				reply_payload = ((U8 *)reply_icmphdr) + 8;
 			}
 		}
-		n_packets_sent++;
+
+		if (reply_icmphdr)
+		{
+			if (reply_icmphdr->type == ICMP_MSG_ECHO || reply_icmphdr->type == ICMP_MSG_TIMESTAMP || reply_icmphdr->type == ICMP_MSG_TIMESTAMP_REPLY)
+				goto recv_response;
+			if (reply_icmphdr->type == ICMP_MSG_ECHO_REPLY)
+			{
+				if (reply_icmphdr->req.echo_reply.id != pid)
+					goto recv_response;
+			}
+			else
+			{
+				t_ip_header *repl_original_ip_header = (t_ip_header *)(((U8 *)reply_icmphdr) + ICMP_HEADER_MIN_SIZE);
+				t_icmp_header *repl_original_header = (t_icmp_header *)(((U8 *)repl_original_ip_header) + repl_original_ip_header->ihl * 4);
+				if (repl_original_header->req.id != pid)
+					goto recv_response;
+			}
+		}
 
 		if (print_timestamps && !quiet)
 			ft_printf("[%ld.%.6ld] ", timestamp.seconds, timestamp.nanoseconds);
@@ -711,7 +925,6 @@ int main(S32 argc, const_string *argv)
 				rtt_buffer_cnt++;
 				if (!quiet)
 				{
-
 					if (reply_icmphdr->req.echo.seq != seq)
 					{
 						if (verbose)
@@ -769,7 +982,7 @@ int main(S32 argc, const_string *argv)
 	return 0;
 }
 
-string addr_to_str(U32 addr)
+static string addr_to_str(U32 addr)
 {
 	static char buf[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &addr, buf, sizeof(buf));
@@ -859,10 +1072,167 @@ static U16 checksum(U16 *ptr, U64 nbytes)
 	return answer;
 }
 
-/*
-TODO:
--p
-*/
+static void ip_header_print(t_ip_header *hdr)
+{
+	ft_printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst Data\n");
+	ft_printf(" %1x  %1x  %02x %04x %04x",
+	       hdr->ver, hdr->ihl, hdr->tos, hdr->len, hdr->id);
+	ft_printf("   %1x %04x", ((hdr->flgs_frg) & 0xe000) >> 13,
+	       (hdr->flgs_frg) & 0x1fff);
+	ft_printf("  %02x  %02x %04x", hdr->ttl, hdr->protocol, hdr->check);
+	ft_printf(" %s ", addr_to_str(hdr->src_addr));
+	ft_printf(" %s ", addr_to_str(hdr->dst_addr));
+	ft_printf("\n");
+}
+
+
+static void icmp_print_error(t_ip_header *ip_hdr, t_icmp_header *hdr, bool verbose)
+{
+	switch (hdr->type)
+	{
+	case ICMP_MSG_ECHO_REPLY:
+		ft_printf("Echo Reply\n");
+		break;
+	case ICMP_MSG_DESTINATION_UNREACHABLE:
+		switch (hdr->code)
+		{
+		case ICMP_NET_UNREACH:
+			ft_printf("Destination Net Unreachable\n");
+			break;
+		case ICMP_HOST_UNREACH:
+			ft_printf("Destination Host Unreachable\n");
+			break;
+		case ICMP_PROT_UNREACH:
+			ft_printf("Destination Protocol Unreachable\n");
+			break;
+		case ICMP_PORT_UNREACH:
+			ft_printf("Destination Port Unreachable\n");
+			break;
+		case ICMP_FRAG_NEEDED:
+			ft_printf("Frag needed and DF set\n");
+			break;
+		case ICMP_SR_FAILED:
+			ft_printf("Source Route Failed\n");
+			break;
+		case ICMP_NET_UNKNOWN:
+			ft_printf("Destination Net Unknown\n");
+			break;
+		case ICMP_HOST_UNKNOWN:
+			ft_printf("Destination Host Unknown\n");
+			break;
+		case ICMP_HOST_ISOLATED:
+			ft_printf("Source Host Isolated\n");
+			break;
+		case ICMP_NET_ANO:
+			ft_printf("Destination Net Prohibited\n");
+			break;
+		case ICMP_HOST_ANO:
+			ft_printf("Destination Host Prohibited\n");
+			break;
+		case ICMP_NET_UNR_TOS:
+			ft_printf("Destination Net Unreachable for Type of Service\n");
+			break;
+		case ICMP_HOST_UNR_TOS:
+			ft_printf("Destination Host Unreachable for Type of Service\n");
+			break;
+		case ICMP_PKT_FILTERED:
+			ft_printf("Packet filtered\n");
+			break;
+		case ICMP_PREC_VIOLATION:
+			ft_printf("Precedence Violation\n");
+			break;
+		case ICMP_PREC_CUTOFF:
+			ft_printf("Precedence Cutoff\n");
+			break;
+		default:
+			ft_printf("Dest Unreachable, Bad Code: %d\n", hdr->code);
+			break;
+		}
+		if (verbose && ip_hdr != NULL)
+			ip_header_print(ip_hdr);
+		break;
+	case ICMP_SOURCE_QUENCH:
+		ft_printf("Source Quench\n");
+		if (verbose && ip_hdr != NULL)
+			ip_header_print(ip_hdr);
+		break;
+	case ICMP_REDIRECT:
+		switch (hdr->code)
+		{
+		case ICMP_REDIR_NET:
+			ft_printf("Redirect Network");
+			break;
+		case ICMP_REDIR_HOST:
+			ft_printf("Redirect Host");
+			break;
+		case ICMP_REDIR_NETTOS:
+			ft_printf("Redirect Type of Service and Network");
+			break;
+		case ICMP_REDIR_HOSTTOS:
+			ft_printf("Redirect Type of Service and Host");
+			break;
+		default:
+			ft_printf("Redirect, Bad Code: %d", hdr->code);
+			break;
+		}
+		if (ip_hdr)
+			ft_printf("(New nexthop: %s)\n", addr_to_str(hdr->req.redirect.gateway_addr));
+		if (verbose && ip_hdr != NULL)
+			ip_header_print(ip_hdr);
+		break;
+	case ICMP_ECHO:
+		ft_printf("Echo Request\n");
+		break;
+	case ICMP_TIME_EXCEEDED:
+		switch (hdr->code)
+		{
+		case ICMP_EXC_TTL:
+			ft_printf("Time to live exceeded\n");
+			break;
+		case ICMP_EXC_FRAGTIME:
+			ft_printf("Frag reassembly time exceeded\n");
+			break;
+		default:
+			ft_printf("Time exceeded, Bad Code: %d\n", hdr->code);
+			break;
+		}
+		if (verbose && ip_hdr != NULL)
+			ip_header_print(ip_hdr);
+		break;
+	case ICMP_PARAMETERPROB:
+		ft_printf("Parameter problem: pointer = %u\n", ntohl(hdr->req.param_problem.ptr) >> 24);
+		if (verbose && ip_hdr != NULL)
+			ip_header_print(ip_hdr);
+		break;
+	case ICMP_TIMESTAMP:
+		ft_printf("Timestamp\n");
+		break;
+	case ICMP_TIMESTAMPREPLY:
+		ft_printf("Timestamp Reply\n");
+		break;
+	case ICMP_INFO_REQUEST:
+		ft_printf("Information Request\n");
+		/* XXX ID + Seq */
+		break;
+	case ICMP_INFO_REPLY:
+		ft_printf("Information Reply\n");
+		/* XXX ID + Seq */
+		break;
+#ifdef ICMP_MASKREQ
+	case ICMP_MASKREQ:
+		ft_printf("Address Mask Request\n");
+		break;
+#endif
+#ifdef ICMP_MASKREPLY
+	case ICMP_MASKREPLY:
+		ft_printf("Address Mask Reply\n");
+		break;
+#endif
+	default:
+		ft_printf("Bad ICMP type: %d\n", hdr->type);
+	}
+}
+
 static void print_help()
 {
 	ft_printf(

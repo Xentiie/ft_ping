@@ -1,7 +1,3 @@
-objs/
-
-*.out
-*.o
-
 ft_ping
-config.mk
+.vscode
+.editorconfig
