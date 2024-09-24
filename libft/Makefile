@@ -6,12 +6,11 @@
 #    By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/02/25 09:55:54 by reclaire          #+#    #+#              #
-#    Updated: 2024/07/03 05:26:58 by reclaire         ###   ########.fr        #
+#    Updated: 2024/09/24 19:14:45 by reclaire         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		=	libft.so
-include config.mk
+include config.mk.sv
 
 #CFLAGS		+=	-Wall -Wextra -Werror -O3 -g
 CFLAGS		+=	-g -Wall -Wextra
