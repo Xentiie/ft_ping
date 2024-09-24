@@ -6,7 +6,7 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 17:17:24 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/24 19:02:06 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/09/24 19:13:14 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 #include "libft/io.h"
 #include "libft/socket.h"
 #include "libft/getopt.h"
-#include "libft/debug.h"
 #include "libft/maths.h"
 
 #ifndef __USE_MISC
@@ -30,41 +29,12 @@
 #include <errno.h>
 #include <signal.h>
 #include <math.h>
-#include <limits.h>
-
-#include <sys/ioctl.h>
-#include <sys/socket.h>
 
 #include <ifaddrs.h>
 #include <arpa/inet.h>
-#include <net/if.h>
 #define __USE_XOPEN2K 1
 #include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
 #include <netinet/ip_icmp.h>
-
-
-typedef struct s_ip_header
-{
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-	U8 ihl:4; // Internet header length
-	U8 ver:4; // 4:IPv4 6:IPv6
-#else
-	U8 ver:4; // 4:IPv4 6:IPv6
-	U8 ihl:4; // Header length
-#endif
-	U8 tos; // Deprecated. 0
-	U16 len; // Total packet length
-	U16 id; // Identification
-	U16 flgs_frg; // Flags / frag off
-	U8 ttl;
-	U8 protocol;
-	U16 check; // Header checksum
-	U32 src_addr;
-	U32 dst_addr;
-	/* opts */
-}	t_ip_header;
 
 #define ICMP_MSG_DESTINATION_UNREACHABLE 3
 #define ICMP_MSG_TIME_EXCEEDED 11
@@ -80,14 +50,40 @@ typedef struct s_ip_header
 
 #define ICMP_HEADER_MIN_SIZE 8
 #define ICMP_HEADER_MAX_SIZE 20
+
+#pragma region structs
+
+typedef struct s_ip_header
+{
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	U8 ihl : 4; // Internet header length
+	U8 ver : 4; // 4:IPv4 6:IPv6
+#else
+	U8 ver : 4; // 4:IPv4 6:IPv6
+	U8 ihl : 4; // Header length
+#endif
+	U8 tos;		  // Deprecated. 0
+	U16 len;	  // Total packet length
+	U16 id;		  // Identification
+	U16 flgs_frg; // Flags / frag off
+	U8 ttl;
+	U8 protocol;
+	U16 check; // Header checksum
+	U32 src_addr;
+	U32 dst_addr;
+	/* opts */
+} t_ip_header;
+
 typedef struct s_icmp_header
 {
 	U8 type;
 	U8 code;
 	U16 checksum;
 
-	union {
-		struct {
+	union
+	{
+		struct
+		{
 			U16 id;
 			U16 seq;
 		};
@@ -103,10 +99,11 @@ typedef struct s_icmp_header
 		4 = fragmentation needed and DF set (gateway)
 		5 = source route failed (gateway)
 		*/
-		struct {
+		struct
+		{
 			U32 unused;
 		} dest_unreachable;
-		
+
 		/*
 		Time exceeded
 		type: 11
@@ -114,17 +111,19 @@ typedef struct s_icmp_header
 		0 = ttl exceeded in transit
 		1 = fragment reassembly time exceeded
 		*/
-		struct {
+		struct
+		{
 			U32 unused;
 		} time_exceeded;
-	
+
 		/*
 		Invalid ICMP header
 		type: 12
 		codes:
 		0 = ptr indicates the byte ofs where there is an error
 		*/
-		struct {
+		struct
+		{
 			U32 ptr; // >> 24
 		} param_problem;
 
@@ -134,10 +133,11 @@ typedef struct s_icmp_header
 		codes:
 		0 =
 		*/
-		struct {
+		struct
+		{
 			U32 unused;
 		} src_quench;
-	
+
 		/*
 		Redirect
 		type: 5
@@ -145,9 +145,10 @@ typedef struct s_icmp_header
 		0 = Redirect datagrams for the Network
 		1 = Redirect datagrams for the Host
 		2 = Redirect datagrams for the Type of Service and Network
-		3 = Redirect datagrams for the Type of Service and Host	
+		3 = Redirect datagrams for the Type of Service and Host
 		*/
-		struct {
+		struct
+		{
 			U32 gateway_addr;
 		} redirect;
 
@@ -157,7 +158,8 @@ typedef struct s_icmp_header
 		codes:
 		0 = id is set to track messages
 		*/
-		struct {
+		struct
+		{
 			U16 id;
 			U16 seq;
 		} echo;
@@ -168,7 +170,8 @@ typedef struct s_icmp_header
 		codes:
 		0 = id is set to track messages
 		*/
-		struct {
+		struct
+		{
 			U16 id;
 			U16 seq;
 		} echo_reply;
@@ -179,7 +182,8 @@ typedef struct s_icmp_header
 		codes:
 		0 = id is set to track messages
 		*/
-		struct {
+		struct
+		{
 			U16 id;
 			U16 seq;
 			U32 src_timestamp;
@@ -193,7 +197,8 @@ typedef struct s_icmp_header
 		codes:
 		0 = id is set to track messages
 		*/
-		struct {
+		struct
+		{
 			U16 id;
 			U16 seq;
 			U32 src_timestamp;
@@ -207,7 +212,8 @@ typedef struct s_icmp_header
 		codes:
 		0 = id is set to track messages
 		*/
-		struct {
+		struct
+		{
 			U16 id;
 			U16 seq;
 		} information;
@@ -218,12 +224,13 @@ typedef struct s_icmp_header
 		codes:
 		0 = id is set to track messages
 		*/
-		struct {
+		struct
+		{
 			U16 id;
 			U16 seq;
 		} information_reply;
 	} req;
-}	t_icmp_header;
+} t_icmp_header;
 
 typedef struct s_icmp_packet
 {
@@ -233,18 +240,18 @@ typedef struct s_icmp_packet
 	t_icmp_header *icmp_hdr;
 	U8 *payload;
 } t_icmp_packet;
+#pragma endregion
 
-
+#pragma region funcs declarations
 static void sigint_handler(S32 sig);
-
 static U16 checksum(U16 *ptr, U64 nbytes);
-
 static string addr_to_str(U32 addr);
-
 static void icmp_print_error(t_ip_header *ip_hdr, t_icmp_header *hdr, bool verbose);
 static void print_help();
 static void print_statistics_and_exit();
+#pragma endregion
 
+#pragma region globals
 /* stats */
 U32 errors;
 U32 n_packets_sent;
@@ -258,8 +265,10 @@ F32 rtt;
 F32 *rtt_buffer;
 U64 rtt_buffer_cnt;
 U64 rtt_buffer_alloc;
+#pragma endregion
 
-int main(S32 argc, const_string *argv)
+#pragma region main
+int main()
 {
 	uid_t uid;
 	pid_t pid;
@@ -314,9 +323,6 @@ int main(S32 argc, const_string *argv)
 	U8 *reply_payload;			  /* payload from reply */
 
 	/* utils */
-	struct addrinfo hints;
-	struct addrinfo *res;
-	struct addrinfo *res2;
 	t_time timestamp;
 	S32 opt;
 	S64 i;
@@ -364,7 +370,7 @@ int main(S32 argc, const_string *argv)
 		do_reverse_dns = TRUE;
 		payload_pattern_len = 0;
 
-		while ((opt = ft_getopt(argc, argv, "ac:DdfI:i:m:np:Q:qS:s:t:vW:w:?")) != -1)
+		while ((opt = ft_getopt(ft_argc, ft_argv, "ac:DdfI:i:m:np:Q:qS:s:t:vW:w:?")) != -1)
 		{
 			switch (opt)
 			{
@@ -548,39 +554,44 @@ int main(S32 argc, const_string *argv)
 				/* fallthrough */
 			case '?':
 			case 'h':
+			default:
 				print_help();
 				return 1;
 			}
 		}
 
-		if (ft_optind >= argc)
+		if (ft_optind >= ft_argc)
 		{
 			ft_dprintf(ft_stderr, "%s: usage error: Destination address required\n", ft_argv[0]);
 			return 1;
 		}
 
 		{ /* DNS */
+			struct addrinfo hints;
+			struct addrinfo *res;
+			struct addrinfo *ptr;
+
 			hints = (struct addrinfo){0};
 			hints.ai_family = AF_INET;
 			hints.ai_socktype = SOCK_STREAM;
 
-			if ((i = getaddrinfo(argv[ft_optind], NULL, &hints, &res)) != 0)
+			if ((i = getaddrinfo(ft_argv[ft_optind], NULL, &hints, &res)) != 0)
 			{
-				ft_dprintf(ft_stderr, "%s: getaddrinfo: %s\n", ft_argv[0], gai_strerror(i));
+				ft_dprintf(ft_stderr, "%s: %s: %s\n", ft_argv[0], ft_argv[ft_optind], gai_strerror(i));
 				return 1;
 			}
-			res2 = res;
+			ptr = res;
 			while (res->ai_family != AF_INET)
 				res = res->ai_next;
 
 			if (!res)
 			{
-				ft_dprintf(ft_stderr, "%s: %s: No address associated with hostname\n", ft_argv[0], argv[ft_optind]);
+				ft_dprintf(ft_stderr, "%s: %s: No address associated with hostname\n", ft_argv[0], ft_argv[ft_optind]);
 				return 1;
 			}
 
 			dstaddr = ((struct sockaddr_in *)res->ai_addr)->sin_addr.s_addr;
-			freeaddrinfo(res2);
+			freeaddrinfo(ptr);
 		}
 
 		if (inet_pton(AF_INET, ft_argv[ft_optind], &i))
@@ -590,7 +601,8 @@ int main(S32 argc, const_string *argv)
 			/* Show ip */
 			ft_strlcat(dstaddr_str, addr_to_str(dstaddr), sizeof(dstaddr_str));
 		else
-		{ /* Address is a hostname (xxx.abcdefg.yyy) */
+		{
+			/* Address is a hostname (xxx.abcdefg.yyy) */
 			dummy_addr = (struct sockaddr_in){0};
 			dummy_addr.sin_family = AF_INET;
 			dummy_addr.sin_addr.s_addr = dstaddr;
@@ -812,7 +824,7 @@ int main(S32 argc, const_string *argv)
 
 		if (seq == 1)
 		{
-			ft_printf("PING %s (%s) ", argv[ft_optind], dstaddr_str);
+			ft_printf("PING %s (%s) ", ft_argv[ft_optind], dstaddr_str);
 			if (interface_specified)
 				ft_printf("from %s %s: ", addr_to_str(srcaddr), interface_name);
 			ft_printf("%ld(%ld) bytes of data.\n", payload_size, packet_size);
@@ -864,7 +876,7 @@ int main(S32 argc, const_string *argv)
 			{
 				if (errno == EINTR || errno == EAGAIN)
 				{
-					//if (verbose)
+					// if (verbose)
 					//	ft_dprintf(ft_stderr, "%s: Request timed out for icmp_seq=%u\n", ft_argv[0], seq);
 				}
 				else
@@ -981,7 +993,9 @@ int main(S32 argc, const_string *argv)
 	print_statistics_and_exit();
 	return 0;
 }
+#pragma endregion
 
+#pragma region funcs definitions
 static string addr_to_str(U32 addr)
 {
 	static char buf[INET_ADDRSTRLEN];
@@ -1076,15 +1090,14 @@ static void ip_header_print(t_ip_header *hdr)
 {
 	ft_printf("Vr HL TOS  Len   ID Flg  off TTL Pro  cks      Src      Dst Data\n");
 	ft_printf(" %1x  %1x  %02x %04x %04x",
-	       hdr->ver, hdr->ihl, hdr->tos, hdr->len, hdr->id);
+			  hdr->ver, hdr->ihl, hdr->tos, hdr->len, hdr->id);
 	ft_printf("   %1x %04x", ((hdr->flgs_frg) & 0xe000) >> 13,
-	       (hdr->flgs_frg) & 0x1fff);
+			  (hdr->flgs_frg) & 0x1fff);
 	ft_printf("  %02x  %02x %04x", hdr->ttl, hdr->protocol, hdr->check);
 	ft_printf(" %s ", addr_to_str(hdr->src_addr));
 	ft_printf(" %s ", addr_to_str(hdr->dst_addr));
 	ft_printf("\n");
 }
-
 
 static void icmp_print_error(t_ip_header *ip_hdr, t_icmp_header *hdr, bool verbose)
 {
@@ -1261,3 +1274,4 @@ Options:\n\
   -w <deadline>      reply wait <deadline> in seconds, and quits on ping error\n\
   -W <timeout>       time to wait for response\n");
 }
+#pragma endregion
