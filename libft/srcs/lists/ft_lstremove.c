@@ -6,11 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/23 18:30:13 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:30:02 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:42:24 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/lists.h"
 
 bool	ft_lstremove2(t_list **lst, void *content, void (*del)(void *))
 {
@@ -55,7 +56,7 @@ bool	ft_lstremove(t_list **lst, t_list *elem, void (*del)(void *))
 	t_list	*prev;
 	t_list	*curr;
 
-	if (lst == NULL || elem == NULL)
+	if (UNLIKELY(lst == NULL || elem == NULL))
 		__FTRETURN_ERR(FALSE, FT_EINVPTR);
 
 	curr = *lst;
@@ -95,7 +96,7 @@ bool	ft_lst_softremove(t_list **lst, t_list *elem)
 	t_list	*prev;
 	t_list	*curr;
 
-	if (lst == NULL || elem == NULL)
+	if (UNLIKELY(lst == NULL || elem == NULL))
 		__FTRETURN_ERR(FALSE, FT_EINVPTR);
 
 	curr = *lst;

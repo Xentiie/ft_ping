@@ -6,35 +6,35 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 19:47:30 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/28 16:16:55 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_TYPES_H
+#if !defined(LIBFT_TYPES_H)
 #define LIBFT_TYPES_H
 
 #include "_os.h"
 
-#ifndef NULL
+#if !defined(NULL)
 #define NULL ((void *)0)
 #endif
 
-#ifndef TRUE
+#if !defined(TRUE)
 #define TRUE 1
 #endif
 
-#ifndef FALSE
+#if !defined(FALSE)
 #define FALSE 0
 #endif
 
-#ifndef LOCALHOST
+#if !defined(LOCALHOST)
 #define LOCALHOST "localhost"
 #endif
 
 typedef unsigned char U8;
 typedef unsigned short U16;
 typedef unsigned int U32;
-#ifdef FT_OS_WIN
+#if defined(FT_OS_WIN)
 typedef unsigned long long U64;
 typedef unsigned long long LU64;
 #else
@@ -44,7 +44,7 @@ typedef unsigned long long LU64;
 typedef signed char S8;
 typedef signed short S16;
 typedef signed int S32;
-#ifdef FT_OS_WIN
+#if defined(FT_OS_WIN)
 typedef signed long long S64;
 typedef signed long long LS64;
 #else
@@ -63,10 +63,11 @@ typedef int wchar;
 typedef U8 bool;
 
 #if defined(FT_OS_WIN)
-typedef void *file;
+typedef void *filedesc;
 #elif defined(FT_OS_LINUX) || defined(FT_OS_MAC)
-typedef S32 file;
+typedef S32 filedesc;
 #endif
+typedef struct s_file t_file;
 
 typedef struct s_v2
 {

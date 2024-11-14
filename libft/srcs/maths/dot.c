@@ -6,11 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 22:45:45 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 20:51:33 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:50:40 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/maths.h"
 
 inline F32	ft_dot2(t_v2 a, t_v2 b)
 {

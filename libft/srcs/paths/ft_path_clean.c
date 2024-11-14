@@ -6,12 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 03:33:50 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/20 18:12:45 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:54:40 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#include <stdio.h>
+#include "libft/lists.h"
+
+#include <stdlib.h>
 
 void	ft_path_clean(t_list **path)
 {

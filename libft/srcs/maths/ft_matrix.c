@@ -1,21 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_mat4x4.c                                        :+:      :+:    :+:   */
+/*   ft_matrix.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/16 02:51:20 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 20:51:26 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:51:22 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <math.h>
 #include "libft_int.h"
+#include "libft/maths.h"
 
-#define get(mat, r, c) (((F32 *)&mat)[r + c * 4])
-#define getp(mat, r, c) (((F32 *)mat)[r + c * 4])
+#include <math.h>
+
+#define get(mat, r, c) (((F32 *)&mat)[(r) + (c) * 4])
+#define getp(mat, r, c) (((F32 *)mat)[(r) + (c) * 4])
 
 t_v4 *ft_mat4x4_col(t_mat4x4 *mat, S32 c)
 {
@@ -74,7 +75,7 @@ F32 ft_mat4x4_det(t_mat4x4 v)
 
 t_mat4x4 ft_mat4x4_invert(t_mat4x4 mat)
 {
-	t_mat4x4 r;
+	t_mat4x4 r = ft_mat4x4_identity;
 	F32 d = 0;
 	F32 si = 1;
 	for (S32 i = 0; i < 4; i++)
@@ -82,9 +83,9 @@ t_mat4x4 ft_mat4x4_invert(t_mat4x4 mat)
 		F32 sj = si;
 		for (S32 j = 0; j < 4; j++)
 		{
-			t_mat4x4 sub;
-			for (S32 k = 0; k < 4 - 1; k++)
-				for (S32 l = 0; l < 4 - 1; l++)
+			t_mat4x4 sub = ft_mat4x4_identity;
+			for (S32 k = 0; k < 3; k++)
+				for (S32 l = 0; l < 3; l++)
 					get(sub, k, l) = get(mat, (k < j) ? k : k + 1, (l < i) ? l : l + 1);
 			F32 dd = ft_mat4x4_det(sub) * sj;
 			get(r, i, j) = dd;
@@ -93,7 +94,7 @@ t_mat4x4 ft_mat4x4_invert(t_mat4x4 mat)
 		}
 		si = -si;
 	}
-	return ft_mat4x4_mult_float(ft_mat4x4_mult_float(r, d == 0 ? 0 : 1 / d), 4);
+	return ft_mat4x4_mult_float(ft_mat4x4_mult_float(r, (d == 0 ? 0 : (1.0f / d))), 4);
 	return r;
 }
 

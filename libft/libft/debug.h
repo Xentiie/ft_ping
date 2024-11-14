@@ -6,18 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 19:59:45 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 20:15:04 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:33:15 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_DEBUG_H
+#if !defined(LIBFT_DEBUG_H)
 # define LIBFT_DEBUG_H
 
 # include "_libft.h"
-
-# if defined(__cplusplus)
-extern "C" {
-# endif
 
 # define	FT_DEBUG_FALSE		0
 # define	FT_DEBUG_VALGRIND	1
@@ -35,9 +31,5 @@ extern void				_free(void *p, char *file, int line);
 #   define malloc(X)	_malloc(X, __FILE__, __LINE__)
 #   define free(X)		_free(X, __FILE__, __LINE__)
 #  endif /* FT_MEMCHECK */
-
-# if defined(__cplusplus)
-}
-# endif
 
 #endif

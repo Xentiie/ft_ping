@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 19:56:09 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/03 03:34:56 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef _LIBFT_H
+#if !defined(_LIBFT_H)
 # define _LIBFT_H
 
 /*
@@ -21,13 +21,14 @@
 # include "_os.h"
 # include "types.h"
 
-extern	int				ft_argc;
-extern	const_string	*ft_argv;
-extern	const_string	*ft_env;
+extern	S32		ft_argc;
+extern	string	*ft_argv;
+extern	string	*ft_env;
 # define FT_INIT_ARGV(argc, argv, env) ft_argc=argc;ft_argv=argv;ft_env=env;
 
 /*Error code returned by some ft functions*/
-extern	S32		ft_errno;
+S32 *__ft_errno_location();
+#define ft_errno (*__ft_errno_location())
 # define FT_OK				0	/* No error */
 # define FT_EOMEM			1	/* Out of memory */
 # define FT_EINVPTR			2	/* Invalid pointer */

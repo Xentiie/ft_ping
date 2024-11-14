@@ -6,59 +6,72 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/27 00:18:05 by reclaire          #+#    #+#             */
-/*   Updated: 2024/04/11 18:54:28 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/11 17:32:28 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/maths.h"
+#include "libft/strings.h"
+#include "libft/limits.h"
 
-#include <string.h>
 #include <math.h>
 
-F32	ft_atof(const_string str)
+F32 ft_atof(const_string str)
 {
 	S8 neg;
-	if (*str == '+')
-	{neg = 0; str++;}
-	if (*str == '-')
-	{neg = 1; str++;}
+	F32 v;
+	F32 scale;
+	S32 num_digits;
+	S32 tmp;
+	U64 e;
 
-	F32 v = 0.0f;
-	S32 numDigits = 0;
+	if (*str == '+')
+	{
+		neg = 0;
+		str++;
+	}
+	if (*str == '-')
+	{
+		neg = 1;
+		str++;
+	}
+
+	v = 0.0f;
+	num_digits = 0;
 	while (*str >= '0' && *str <= '9')
 	{
 		v = v * 10.0f + (F32)(*str++ - '0');
-		numDigits++;
+		num_digits++;
 	}
 	if (*str++ == '.')
 	{
-		F32 scale = 1.0f;
+		scale = 1.0f;
 		while (*str >= '0' && *str <= '9')
 		{
 			scale *= 0.1f;
 			v += scale * (F32)(*str++ - '0');
-			numDigits++;
+			num_digits++;
 		}
 	}
-	if (!numDigits)
+	if (!num_digits)
 		return 0;
 
-    if (*str == '#')
-    {
-        if (strncmp(str, "#INF", 4))
+	if (*str == '#')
+	{
+		if (!ft_strncmp(str, "#INF", 4))
 			return (neg) ? FT_F32_NINFINITY : FT_F32_PINFINITY;
-        if (strncmp(str, "#SNAN", 5))
+		if (!ft_strncmp(str, "#SNAN", 5))
 			return (neg) ? FT_F32_NSNAN : FT_F32_PSNAN;
-        if (strncmp(str, "#QNAN", 5))
+		if (!ft_strncmp(str, "#QNAN", 5))
 			return (neg) ? FT_F32_NQNAN : FT_F32_PQNAN;
-    }
+	}
 
-	U64 e = 0;
+	e = 0;
 	if (((*str == 'e') || *str == 'E'))
 	{
 		str++;
-		S32 tmp;
-		if ((tmp  = ft_atoi_l(str, &e)))
+		if ((tmp = ft_atoi_l(str, &e)))
 		{
 			str += tmp;
 			if (e)
@@ -68,14 +81,20 @@ F32	ft_atof(const_string str)
 	return (neg) ? -v : v;
 }
 
-F32	ft_atof_l(const_string str, U64 *len)
+F32 ft_atof_l(const_string str, U64 *len)
 {
 	const_string save = str;
 	S8 neg;
 	if (*str == '+')
-	{neg = 0; str++;}
+	{
+		neg = 0;
+		str++;
+	}
 	if (*str == '-')
-	{neg = 1; str++;}
+	{
+		neg = 1;
+		str++;
+	}
 
 	F32 v = 0.0f;
 	S32 numDigits = 0;
@@ -100,31 +119,31 @@ F32	ft_atof_l(const_string str, U64 *len)
 		return 0;
 	}
 
-    if (*str == '#')
-    {
-        if (strncmp(str, "#INF", 4))
-        {
-			*len = str-save;
+	if (*str == '#')
+	{
+		if (ft_strncmp(str, "#INF", 4))
+		{
+			*len = str - save;
 			return (neg) ? FT_F32_NINFINITY : FT_F32_PINFINITY;
-        }
-        if (strncmp(str, "#SNAN", 5))
-        {
-			*len = str-save;
+		}
+		if (ft_strncmp(str, "#SNAN", 5))
+		{
+			*len = str - save;
 			return (neg) ? FT_F32_NSNAN : FT_F32_PSNAN;
-        }
-        if (strncmp(str, "#QNAN", 5))
-        {
-			*len = str-save;
+		}
+		if (ft_strncmp(str, "#QNAN", 5))
+		{
+			*len = str - save;
 			return (neg) ? FT_F32_NQNAN : FT_F32_PQNAN;
-        }
-    }
+		}
+	}
 
 	U64 e = 0;
 	if (((*str == 'e') || *str == 'E'))
 	{
 		str++;
 		S32 tmp;
-		if ((tmp  = ft_atoi_l(str, &e)))
+		if ((tmp = ft_atoi_l(str, &e)))
 		{
 			str += tmp;
 			if (e)

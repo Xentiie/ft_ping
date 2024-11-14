@@ -6,12 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/02 02:05:10 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:37:43 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:49:13 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#include <stdio.h>
+#include "libft/lists.h"
 
 /*
 bool ft_lstremoveif(t_list **lst, void (*del)(void *),

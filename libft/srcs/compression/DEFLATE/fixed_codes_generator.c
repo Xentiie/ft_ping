@@ -6,12 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/25 15:13:49 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/25 17:43:19 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:52:39 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// make -C ../.. && gcc -g -I../ -I../../ -L../../ -DFT_INFLATE_CODES_GENERATOR ./fixed_codes_generator.c -lft -lz -lm
-#ifdef FT_INFLATE_CODES_GENERATOR
+// make -C ../.. && gcc -g -I../ -I../../ -L../../ -DFT_DEFLATE_CODES_GENERATOR ./fixed_codes_generator.c -lft -lz -lm
+#if defined(FT_DEFLATE_CODES_GENERATOR)
 
 #include "libft/io.h"
 #include <stdlib.h>
@@ -199,10 +199,10 @@ int main()
 		}
 	}
 
-	file fd = ft_fopen("./DEFLATE/inflate/fixed_codes.h", "w+");
+	filedesc fd = ft_fopen("./DEFLATE/fixed_codes.h", "w+");
 
-	ft_dprintf(fd, "#ifndef FT_INFLATE_FIXED_CODES_H\n");
-	ft_dprintf(fd, "#define FT_INFLATE_FIXED_CODES_H\n");
+	ft_dprintf(fd, "#if !defined(FT_FIXED_CODES_H)\n");
+	ft_dprintf(fd, "#define FT_FIXED_CODES_H\n");
 	ft_dprintf(fd, "#include \"libft/std.h\"\n\n");
 
 	ft_dprintf(fd, "struct s_code {\n\tU8 op;\n\tU8 nbits;\n\tU16 val;\n};\n\n");

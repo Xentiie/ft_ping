@@ -6,18 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 19:42:00 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/03 03:16:33 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/11 17:28:16 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_STRINGS_H
+#if !defined(LIBFT_STRINGS_H)
 # define LIBFT_STRINGS_H
 
 # include "_libft.h"
-
-# if defined(__cplusplus)
-extern "C" {
-# endif
 
 /*
 TODO
@@ -89,12 +85,6 @@ Sets ft_errno and returns NULL.
 - FT_ENOENT if no error associated with 'err' was found
 */
 const_string 		ft_strerror2(S32 err);
-
-/*
-Append a at the end of b.
-Caller gets ownership of returned string.
-*/
-extern string		ft_str_append(string a, string b, bool free_a, bool free_b);
 
 /*
 Append src behind dest. Dest must have enough space, including \0
@@ -259,33 +249,5 @@ extern string	ft_strmapi(const_string str, U8 (*f)(U64 index, U8));
 Applies function f to each characters in string s.
 */
 extern void		ft_striteri(string str, void (*f)(U64 index, string str));
-
-/*
-Splits string s by separator c.
-*/
-__attribute__ ((deprecated)) extern string *ft_split(const_string str, U8 c);
-
-/*
-Duplicates a split
-Caller gets ownership of returned string.
-*/
-__attribute__ ((deprecated)) extern string *ft_dupsplit(const_string *split);
-
-/*
-Free a split
-Caller gets ownership of returned string.
-*/
-__attribute__ ((deprecated)) extern void ft_freesplit(string *split);
-
-/*
-Returns the length of a split
-Caller gets ownership of returned string.
-*/
-__attribute__ ((deprecated)) extern U64 ft_splitlen(const_string *split);
-
-
-# if defined(__cplusplus)
-}
-# endif
 
 #endif

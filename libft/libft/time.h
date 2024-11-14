@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:15:51 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/29 20:48:29 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_TIME_H
+#if !defined(LIBFT_TIME_H)
 #define LIBFT_TIME_H
 
 #include "_libft.h"
@@ -76,12 +76,12 @@ __attribute__((deprecated)) extern string ft_clk_elapsed_us(t_clock *clk, string
 /*Deprecated*/
 __attribute__((deprecated)) extern string ft_clk_elapsed_ns(t_clock *clk, string buffer, U64 buflen);
 
-#ifndef TIMER_VERSION_1
+#if !defined(TIMER_VERSION_1)
 extern string ft_clk_fmt_elapsed_ms(t_clock *clk);
 extern string ft_clk_fmt_elapsed_us(t_clock *clk);
 extern string ft_clk_fmt_elapsed_ns(t_clock *clk);
 extern string ft_clk_fmt_elapsed_str(t_clock *clk);
 extern F64 ft_clk_fmt_elapsed_dbl(t_clock *clk);
-#endif /*#  ifndef TIMER_VERSION_1*/
+#endif /*#  if !defined(TIMER_VERSION_1)*/
 
 #endif

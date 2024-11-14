@@ -6,11 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 00:16:09 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 20:50:48 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:54:03 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/maths.h"
+
+#include <stdlib.h>
 #include <math.h>
 
 S32		ft_abs(S32 n)		{ return abs(n); }

@@ -5,21 +5,15 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/11 19:42:34 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 20:15:15 by reclaire         ###   ########.fr       */
+/*   Created: 2024/11/06 01:46:29 by reclaire          #+#    #+#             */
+/*   Updated: 2024/11/10 22:33:22 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//TODO: check for VAOPT
-
-#ifndef LIBFT_MACROS_H
+#if !defined(LIBFT_MACROS_H)
 # define LIBFT_MACROS_H
 
 # include "_libft.h"
-
-# if defined(__cplusplus)
-extern "C" {
-# endif
 
 //EXPENSION
 #  define	FT_EXP(x) x
@@ -32,6 +26,24 @@ extern "C" {
 #  define __ESC(...) __ESC_(__VA_ARGS__)
 #  define __ESC_(...) __VAN ## __VA_ARGS__
 #  define __VAN__ISH
+
+#define _REP0(X)
+#define _REP1(X) X
+#define _REP2(X) _REP1(X) X
+#define _REP3(X) _REP2(X) X
+#define _REP4(X) _REP3(X) X
+#define _REP5(X) _REP4(X) X
+#define _REP6(X) _REP5(X) X
+#define _REP7(X) _REP6(X) X
+#define _REP8(X) _REP7(X) X
+#define _REP9(X) _REP8(X) X
+#define _REP10(X) _REP9(X) X
+
+/* REPEAT X MULTIPLE TIMES */
+#define FT_REP(HUNDREDS,TENS,ONES,X) \
+  _REP##HUNDREDS(_REP10(_REP10(X))) \
+  _REP##TENS(_REP10(X)) \
+  _REP##ONES(X)
 
 /* __VA_ARGS__ UTILS */
 /* REMOVE N FIRST ARGS */
@@ -241,10 +253,5 @@ Usage:
 )
 
 */
-
-
-# if defined(__cplusplus)
-}
-# endif
 
 #endif

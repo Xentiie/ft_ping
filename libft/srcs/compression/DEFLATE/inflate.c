@@ -6,18 +6,18 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/30 11:07:21 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/06 04:31:03 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:08:38 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft_int.h"
+#include "deflate_int.h"
 #include "fixed_codes.h"
-#include "../deflate_int.h"
+#include "libft/crypt/crc.h"
 #include <stdlib.h>
 
 //#define DEBUG
 
-#ifdef DEBUG
+#if defined(DEBUG)
 #include <stdio.h>
 #define IFDEBUG(...) \
 	do               \

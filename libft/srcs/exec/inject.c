@@ -6,16 +6,18 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 02:04:01 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/14 03:01:26 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:02:02 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft_int.h"
-#include "exec_int.h"
-#include <sys/types.h>
-#include <stdarg.h>
-#include <stdio.h>
 #define __USE_GNU
+
+#include "libft_int.h"
+#include "libft/strings.h"
+#include "exec_int.h"
+
+#include <stdarg.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 void ft_execinject(struct s_exec_infos *einfos, char *lib)

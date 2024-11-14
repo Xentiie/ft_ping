@@ -1,24 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   crypt.h                                            :+:      :+:    :+:   */
+/*   md5.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/15 16:46:23 by reclaire          #+#    #+#             */
-/*   Updated: 2024/07/02 03:38:30 by reclaire         ###   ########.fr       */
+/*   Created: 2024/11/09 22:56:32 by reclaire          #+#    #+#             */
+/*   Updated: 2024/11/12 15:05:46 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_CRYPT_H
-# define LIBFT_CRYPT_H
+#if !defined(FT_MD5_H)
+#define FT_MD5_H
 
-# include "_libft.h"
+#include "../_libft.h"
 
-U32 ft_crc32(U8 *data, U64 len);
-U32 ft_crc32_u(U8 *data, U64 len, U32 crc);
+struct s_md5_state
+{
+  U32 state[4];  /* state (ABCD) */
+  U32 count[2];  /* number of bits, modulo 2^64 (lsb first) */
+  U8 buffer[64]; /* input buffer */
+};
 
-U64 ft_adler32(U8 *data, U64 len, U64 adler);
-U32 ft_adler32_end(U64 adler);
+void ft_md5_init(struct s_md5_state *state);
+void ft_md5_update(struct s_md5_state *state, const U8 *input, U32 inputLen);
+void ft_md5_final(struct s_md5_state *state, U8 digest[16]);
 
 #endif

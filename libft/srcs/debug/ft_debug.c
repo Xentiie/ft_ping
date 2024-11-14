@@ -6,7 +6,7 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/26 19:57:43 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/30 04:52:46 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:08:52 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 #if 0
 
-# ifdef FT_OS_WIN
+# if defined(FT_OS_WIN)
 #  include <debugapi.h>
 #  define SIGTRAP STATUS_BREAKPOINT
 # else
@@ -26,7 +26,7 @@
 
 static S8 __is_debugger = -1;
 
-# ifdef FT_OS_WIN
+# if defined(FT_OS_WIN)
 S8 ft_is_debugger()
 {
 	if (__is_debugger == -1)

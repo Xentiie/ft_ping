@@ -6,14 +6,17 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 02:35:23 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/14 16:40:21 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:01:24 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/strings.h"
+#include "libft/lists.h"
 #include "exec_int.h"
+
 #include <stdarg.h>
-#include <stdio.h>
+#include <stdlib.h>
 
 void	ft_exec_editenv(struct s_exec_infos *einfos, char **env)
 {

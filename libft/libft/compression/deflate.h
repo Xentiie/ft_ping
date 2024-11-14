@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/02 23:02:08 by reclaire          #+#    #+#             */
-/*   Updated: 2024/07/02 03:30:26 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_DEFLATE_H
+#if !defined(LIBFT_DEFLATE_H)
 #define LIBFT_DEFLATE_H
 
 #include "libft/_libft.h"
@@ -45,7 +45,7 @@ struct s_inflate_data
 	U16 dist_code_length[32];
 	S32 last_symbol;
 
-	//struct s_code cl_codes[0x7FFF];
+	// struct s_code cl_codes[0x7FFF];
 	struct s_code *cl_codes;
 
 	struct s_code *ll_codes;
@@ -60,7 +60,7 @@ struct s_inflate_data
 struct s_deflate_data
 {
 	U64 hold;
-	
+
 	S8 block_type;
 	U8 last;
 
@@ -130,7 +130,6 @@ Sets ft_errno and returns FALSE.
 ### TODO
 */
 bool ft_deflate_end(t_deflate_stream *stream);
-
 
 /*
 Inits a t_deflate_stream for decompression

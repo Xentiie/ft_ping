@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 16:16:11 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/28 16:16:29 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT__OS_H
+#if !defined(FT__OS_H)
 #define FT__OS_H
 
 # if defined(FT_OS_UNKNOWN) || (!defined(FT_OS_WIN) && !defined(FT_APPLE) && !defined(FT_OS_LINUX))
@@ -18,7 +18,7 @@
 #  if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #   define FT_OS_WIN
 #   define WIN32_LEAN_AND_MEAN 
-#   ifdef _WIN64
+#   if defined(_WIN64)
 #    define FT_OS_WIN64 
 #   else
 #    define FT_OS_WIN32
@@ -52,5 +52,10 @@
 #  endif
 
 # endif
+
+#define FT_TARGET_WIN ((S32)(1 << 0))
+#define FT_TARGET_APPLE ((S32)(1 << 1))
+#define FT_TARGET_LINUX ((S32)(1 << 2))
+
 
 #endif

@@ -1,28 +1,44 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   btree.h                                            :+:      :+:    :+:   */
+/*   forbidden_chars.h                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/05/17 18:42:01 by reclaire          #+#    #+#             */
+/*   Created: 2024/09/25 05:57:04 by reclaire          #+#    #+#             */
 /*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#if !defined(LIBFT_BTREE_H)
-# define LIBFT_BTREE_H
+#if !defined(FORBIDDEN_CHARS_H)
+#define FORBIDDEN_CHARS_H
 
-# include "_libft.h"
+#include "libft/types.h"
 
-/*
-Print a binary tree
-NEEDS TO FFLUSH IN pr_val IF printf
+const char forbidden_chars_linux[] = {
+	'/',
+};
 
-TODO:
-Better descr
-Doesn't check errors
-*/
-void ft_print_tree(void *tree, void *(*get_left)(void *node), void*(*get_right)(void *node), void (*pr_val)(void *node));
+const char forbidden_chars_windows[] = {
+	'/',
+	'\\',
+	':',
+	'*',
+	'?',
+	'"',
+	'<',
+	'>',
+	'|',
+};
+
+static inline const_string get_forbidden_chars(S32 target)
+{
+	if (target & FT_TARGET_LINUX)
+		return forbidden_chars_linux;
+	else if (target & FT_TARGET_WIN)
+		return forbidden_chars_windows;
+
+	return forbidden_chars_linux;
+}
 
 #endif

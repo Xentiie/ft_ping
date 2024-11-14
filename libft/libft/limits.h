@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 19:55:11 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/23 20:45:24 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_LIMITS_H
+#if !defined(LIBFT_LIMITS_H)
 # define LIBFT_LIMITS_H
 
 # include "_libft.h"

@@ -6,11 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 19:32:58 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:29:00 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:41:02 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/lists.h"
 
 //t_list	*ft_lstadd_back_ls(t_list *last, t_list *new)
 //{
@@ -32,7 +33,7 @@ void ft_lstadd_back_chained(t_list **lst, t_list *new)
 	static t_list	*last;
 	t_list			*current_last;
 
-	if (lst == NULL)
+	if (UNLIKELY(lst == NULL))
 		__FTRETURN_ERR(, FT_EINVPTR);
 	if (*lst == NULL)
 	{

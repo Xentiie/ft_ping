@@ -6,13 +6,17 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/19 00:01:59 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:31:54 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:43:51 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#include <math.h>
-#ifdef TEST
+#include "libft/maths.h"
+#include "libft/strings.h"
+
+#include <stdlib.h>
+
+#if defined(TEST)
 #include <stdio.h>
 #endif
 
@@ -82,8 +86,7 @@ string ft_ftoa(float n)
 	if (FT_F32_ISQNAN(n))
 		return ft_strdup("#QNAN");
 
-	out = malloc(sizeof(char) * (AFTERPOINT * 2 + 3));
-	if (UNLIKELY(out == NULL))
+	if (UNLIKELY((out = malloc(sizeof(char) * (AFTERPOINT * 2 + 3))) == NULL))
 		__FTRETURN_ERR(NULL, FT_EOMEM);
 
 	ft_bzero(out, sizeof(char) * (AFTERPOINT * 2 + 3));
@@ -124,10 +127,8 @@ string ft_ftoa_l(float n, U64 *len)
 	if (FT_F32_ISQNAN(n))
 		return ft_strdup("#QNAN");
 
-	out = malloc(sizeof(char) * (AFTERPOINT * 2 + 3));
-	if (out == NULL)
+	if (UNLIKELY((out = malloc(sizeof(char) * (AFTERPOINT * 2 + 3))) == NULL))
 		__FTRETURN_ERR(NULL, FT_EOMEM);
-
 
 	ft_bzero(out, sizeof(char) * (AFTERPOINT * 2 + 3));
 	if (n < 0)
@@ -156,7 +157,7 @@ string ft_ftoa_l(float n, U64 *len)
 	__FTRETURN_OK(out);
 }
 
-#ifdef TEST
+#if defined(TEST)
 
 int main()
 {
@@ -166,15 +167,15 @@ int main()
 	str = ft_ftoa(FT_F32_INF);
 	printf("inf: %s\n", str);
 	free(str);
-	
+
 	str = ft_ftoa(FT_F32_SNAN);
 	printf("snan: %s\n", str);
 	free(str);
-	
+
 	str = ft_ftoa(FT_F32_QNAN);
 	printf("qnan: %s\n", str);
 	free(str);
-	
+
 	str = ft_ftoa(123.4567f);
 	printf("123.4567: %s\n", str);
 	free(str);

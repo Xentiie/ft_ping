@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/02 23:02:02 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/27 14:34:53 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_GZIP_H
+#if !defined(LIBFT_GZIP_H)
 #define LIBFT_GZIP_H
 
 #include "libft/_libft.h"
@@ -167,10 +167,10 @@ static void write_gzip_header(file fd)
 
 		.extra_data_len = 0,
 		.extra_data = NULL,
-	
+
 		.filename = NULL,
 		.comment = NULL,
-	
+
 		.state = 0,
 	};
 

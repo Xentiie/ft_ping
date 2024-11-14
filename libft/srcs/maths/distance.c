@@ -6,11 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 22:40:54 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 20:51:30 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:50:37 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/maths.h"
+
 #include <math.h>
 
 inline F32	ft_dist2(t_v2 p1, t_v2 p2)

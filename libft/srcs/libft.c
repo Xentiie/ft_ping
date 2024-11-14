@@ -5,42 +5,82 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/15 04:01:02 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/19 23:33:12 by reclaire         ###   ########.fr       */
+/*   Created: 2024/11/06 01:49:04 by reclaire          #+#    #+#             */
+/*   Updated: 2024/11/14 00:45:29 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/io.h"
+
+#include <stdlib.h>
 
 #if defined(FT_OS_WIN)
-# include <windows.h>
+#include <windows.h>
+#define __thread
 #endif
 
-int				ft_argc = -1;
-const_string	*ft_argv = NULL;
-const_string	*ft_env = NULL;
+S32 ft_argc = -1;
+string *ft_argv = NULL;
+string *ft_env = NULL;
 
-S32	ft_errno;
+S32 *__ft_errno_location()
+{
+	static __thread S32 __ft_errno;
+	return &(__ft_errno);
+}
 
-file			ft_stdout;
-file			ft_stdin;
-file			ft_stderr;
+filedesc ft_stdin;
+filedesc ft_stdout;
+filedesc ft_stderr;
+
+t_file *ft_fstdin;
+t_file *ft_fstdout;
+t_file *ft_fstderr;
 
 __attribute__((constructor))
-void __init_libft(int argc, const_string *argv, const_string *env)
+void __init_libft(S32 argc, string *argv, string *env)
 {
+#if defined(FT_OS_WIN)
+	(void)argc;
+	(void)argv;
+	(void)env;
+
+	ft_argc = __argc;
+	ft_argv = __argv;
+	ft_env = environ;
+#elif defined(FT_OS_LINUX)
 	ft_argc = argc;
 	ft_argv = argv;
 	ft_env = env;
+#endif
 
 #if defined(FT_OS_WIN)
 	ft_stdin = GetStdHandle(STD_INPUT_HANDLE);
 	ft_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	ft_stderr = GetStdHandle(STD_ERROR_HANDLE);
 #elif defined(FT_OS_LINUX) || defined(FT_OS_MAC)
-	ft_stdin = (file)0;
-	ft_stdout = (file)1;
-	ft_stderr = (file)2;
+	ft_stdin = (filedesc)0;
+	ft_stdout = (filedesc)1;
+	ft_stderr = (filedesc)2;
 #endif
 
+	ft_fstdin = ft_fcreate(ft_stdin);
+	if (ft_fstdin == NULL)
+		exit(42);
+	ft_fstdout = ft_fcreate(ft_stdout);
+	if (ft_fstdout == NULL)
+		exit(42);
+	ft_fstderr = ft_fcreate(ft_stderr);
+	if (ft_fstderr == NULL)
+		exit(42);
+}
+
+void lock_ht_cleanup();
+__attribute__((destructor)) void __destroy_libft()
+{
+	ft_fdestroy(ft_fstdin);
+	ft_fdestroy(ft_fstdout);
+	ft_fdestroy(ft_fstderr);
+	lock_ht_cleanup();
 }

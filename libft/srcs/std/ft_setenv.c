@@ -6,13 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 21:05:44 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:34:48 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:31:56 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/strings.h"
+
 #include <stdlib.h>
-#include <stdio.h>
 
 const_string	ft_getenv(const_string name)
 {

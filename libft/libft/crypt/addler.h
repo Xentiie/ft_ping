@@ -1,25 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_putstr_fd.c                                     :+:      :+:    :+:   */
+/*   addler.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/24 14:24:08 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/11 23:03:55 by reclaire         ###   ########.fr       */
+/*   Created: 2024/11/09 15:23:59 by reclaire          #+#    #+#             */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft_int.h"
+#if !defined(FT_ADDLER_H)
+#define FT_ADDLER_H
 
-void	ft_putstr_fd(string s, file fd)
-{
-	if (s == NULL)
-		__FTRETURN_ERR(, FT_EINVPTR);
-	while (*s)
-	{
-		if (ft_fwrite(fd, s++, 1) == -1)
-			__FTRETURN_ERR(, ft_errno);
-	}
-	__FTRETURN_OK();
-}
+# include "../_libft.h"
+
+U64 ft_adler32(U8 *data, U64 len, U64 adler);
+U32 ft_adler32_end(U64 adler);
+
+#endif

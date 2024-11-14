@@ -10,9 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <math.h>
 #include "libft_int.h"
+#include "libft/maths.h"
 
+#include <math.h>
 
 F32	ft_frand(S32 n)
 {

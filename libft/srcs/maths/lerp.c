@@ -6,12 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 22:29:36 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/09 04:06:07 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:53:18 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <math.h>
 #include "libft_int.h"
+#include "libft/maths.h"
+
+#include <math.h>
 
 inline F32 ft_lerp(F32 x, F32 y, F32 t)
 {

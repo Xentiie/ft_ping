@@ -6,11 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:02:15 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:29:29 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:49:46 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/lists.h"
+
+#include <stdlib.h>
 
 void	ft_lstdelone(t_list *lst, void (*del)(void *))
 {

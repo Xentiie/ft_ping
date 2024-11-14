@@ -6,11 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/03 02:36:05 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/03 03:05:03 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:26 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+
+//TODO: ft_str_isnbr / ft_str_isflt: nombre en puissance de 10 genre 1e8 ou 3.14e10
 
 bool ft_str_isascii(const_string str)
 {
@@ -115,7 +117,7 @@ bool ft_str_ishex(const_string str)
 	return TRUE;
 }
 
-#ifdef TEST
+#if defined(TEST)
 
 int main()
 {
@@ -124,7 +126,7 @@ int main()
 	{                                                                                                            \
 		bool v;                                                                                                  \
 		if ((v = func(str)) != (exp))                                                                            \
-			ft_dprintf(ft_stderr, "error with func '%s': '%s' returned %s\n", #func, str, v ? "true" : "false"); \
+			ft_fprintf(ft_fstderr, "error with func '%s': '%s' returned %s\n", #func, str, v ? "true" : "false"); \
 	} while (0)
 
 	do_test(ft_str_isascii, "abc", TRUE);

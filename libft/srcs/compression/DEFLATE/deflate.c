@@ -6,13 +6,16 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/16 03:49:46 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/28 23:38:39 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:08:32 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "deflate_int.h"
+#include "libft/limits.h"
+#include "libft/crypt/crc.h"
+#include <stdlib.h>
 
-#ifdef DEBUG
+#if defined(DEBUG)
 #include <stdio.h>
 #define IFDEBUG(...) \
 	do               \
@@ -112,8 +115,6 @@ bool ft_deflate_init(t_deflate_stream *stream)
 
 	return TRUE;
 }
-
-
 
 bool ft_deflate_next_block(t_deflate_stream *stream, U64 block_max_size, U8 is_last, U8 block_type)
 {

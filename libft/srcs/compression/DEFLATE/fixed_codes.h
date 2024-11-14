@@ -1,4 +1,4 @@
-#ifndef FT_INFLATE_FIXED_CODES_H
+#if !defined(FT_INFLATE_FIXED_CODES_H)
 #define FT_INFLATE_FIXED_CODES_H
 #include "libft/compression/deflate.h"
 

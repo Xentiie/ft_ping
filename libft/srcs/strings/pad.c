@@ -6,11 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 01:48:30 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/26 01:54:13 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:37:48 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/strings.h"
+
+#include <stdlib.h>
 
 string	ft_lpad(string str, char c, U64 n)
 {

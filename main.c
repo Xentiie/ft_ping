@@ -6,7 +6,7 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/07 17:17:24 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/24 19:13:14 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/14 00:30:33 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -297,7 +297,7 @@ int main()
 	U8 payload_pattern_len;	  /* payload pattern buffer len */
 
 	/* icmp */
-	file sock;					/* socket fd */
+	filedesc sock;					/* socket fd */
 	t_ip_header *ip_header;		/* IP header to send. Start of packet. send() should receive this as data pointer */
 	t_icmp_header *icmp_header; /* ICMP header to send */
 	U8 *payload;				/* ICMP payload to send */
@@ -370,7 +370,7 @@ int main()
 		do_reverse_dns = TRUE;
 		payload_pattern_len = 0;
 
-		while ((opt = ft_getopt(ft_argc, ft_argv, "ac:DdfI:i:m:np:Q:qS:s:t:vW:w:?")) != -1)
+		while ((opt = ft_getopt(ft_argc, (const_string *)ft_argv, "ac:DdfI:i:m:np:Q:qS:s:t:vW:w:?")) != -1)
 		{
 			switch (opt)
 			{
@@ -709,38 +709,35 @@ int main()
 	}
 
 	{
-		S32 on = 1;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-result"
+		const S32 on = 1;
 		(void)setuid(0);
 		if ((sock = ft_socket(AF_INET, SOCK_RAW, IPPROTO_ICMP)) == -1)
 		{
-			ft_dprintf(ft_stderr, "error: socket: %s\n", strerror(errno));
-			return -1;
+			ft_dprintf(ft_stderr, "%s: socket: %s\n", ft_argv[0], strerror(errno));
+			return 1;
 		}
 		(void)setuid(uid);
-#pragma GCC diagnostic pop
 
 		if (setsockopt(sock, IPPROTO_IP, IP_HDRINCL, &on, sizeof(on)) == -1)
 		{
-			close(sock); // TODO: ft_close
-			ft_dprintf(ft_stderr, "error: setsockopt: IP_HDRINCL: %s\n", strerror(errno));
-			return -1;
+			close(sock);
+			ft_dprintf(ft_stderr, "%s: setsockopt: IP_HDRINCL: %s\n", ft_argv[0], strerror(errno));
+			return 1;
 		}
 
 		// allow socket to send datagrams to broadcast addresses
 		if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on)) == -1)
 		{
 			close(sock);
-			ft_dprintf(ft_stderr, "error: setsockopt: SO_BROADCAST: %s\n", strerror(errno));
-			return -1;
+			ft_dprintf(ft_stderr, "%s: setsockopt: SO_BROADCAST: %s\n", ft_argv[0], strerror(errno));
+			return 1;
 		}
 
 		if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(t_time)) == -1)
 		{
 			close(sock);
-			ft_dprintf(ft_stderr, "error: setsockopt: SO_RCVTIMEO: %s\n", strerror(errno));
-			return -1;
+			ft_dprintf(ft_stderr, "%s: setsockopt: SO_RCVTIMEO: %s\n", ft_argv[0], strerror(errno));
+			return 1;
 		}
 
 		if (so_debug)
@@ -748,8 +745,8 @@ int main()
 			if (setsockopt(sock, SOL_SOCKET, SO_DEBUG, &on, sizeof(on)) == -1)
 			{
 				close(sock);
-				ft_dprintf(ft_stderr, "error: setsockopt: SO_DEBUG: %s\n", strerror(errno));
-				return -1;
+				ft_dprintf(ft_stderr, "%s: setsockopt: SO_DEBUG: %s\n", ft_argv[0], strerror(errno));
+				return 1;
 			}
 		}
 
@@ -759,8 +756,8 @@ int main()
 			if (setsockopt(sock, SOL_SOCKET, SO_MARK, &dummy, sizeof(dummy)) == -1)
 			{
 				close(sock);
-				ft_dprintf(ft_stderr, "error: setsockopt: SO_MARK: %s\n", strerror(errno));
-				return -1;
+				ft_dprintf(ft_stderr, "%s: setsockopt: SO_MARK: %s\n", ft_argv[0], strerror(errno));
+				return 1;
 			}
 		}
 
@@ -769,8 +766,8 @@ int main()
 			if (setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf)) == -1)
 			{
 				close(sock);
-				ft_dprintf(ft_stderr, "error: setsockopt: SO_SNDBUF: %s\n", strerror(errno));
-				return -1;
+				ft_dprintf(ft_stderr, "%s: setsockopt: SO_SNDBUF: %s\n", ft_argv[0], strerror(errno));
+				return 1;
 			}
 		}
 	}
@@ -842,8 +839,8 @@ int main()
 			sent_recv += i;
 		if (i < 0)
 		{
-			ft_dprintf(ft_stderr, "error: sendto: %s\n", strerror(errno)); // TODO: check ping error codes + error message
-			return -1;
+			ft_dprintf(ft_stderr, "%s: sendto: %s\n", ft_argv[0], strerror(errno));
+			return 1;
 		}
 		n_packets_sent++;
 
@@ -881,7 +878,7 @@ int main()
 				}
 				else
 				{
-					ft_dprintf(ft_stderr, "error: recvfrom: %s\n", strerror(errno));
+					ft_dprintf(ft_stderr, "%s: recvfrom: %s\n", ft_argv[0], strerror(errno));
 					return 1;
 				}
 			}
@@ -1250,7 +1247,7 @@ static void print_help()
 {
 	ft_printf(
 		"Usage\n\
-  ping [options] <destination>\n\
+  %s [options] <destination>\n\
 \n\
 Options:\n\
   <destination>      dns name or ip address\n\
@@ -1272,6 +1269,6 @@ Options:\n\
   -t <ttl>           define time to live\n\
   -v                 verbose output\n\
   -w <deadline>      reply wait <deadline> in seconds, and quits on ping error\n\
-  -W <timeout>       time to wait for response\n");
+  -W <timeout>       time to wait for response\n", ft_argv[0]);
 }
 #pragma endregion

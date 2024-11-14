@@ -8,7 +8,7 @@
 
 /*TABSTOP=4*/
 
-#ifndef JLSS_ID_POSIXVER_H
+#if !defined(JLSS_ID_POSIXVER_H)
 #define JLSS_ID_POSIXVER_H
 
 /*

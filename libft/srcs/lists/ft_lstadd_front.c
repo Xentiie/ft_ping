@@ -6,11 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 19:08:18 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:29:11 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:48:43 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/lists.h"
 
 void	ft_lstadd_front(t_list **lst, t_list *new)
 {

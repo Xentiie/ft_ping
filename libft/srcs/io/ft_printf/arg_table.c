@@ -6,12 +6,15 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/07 19:40:41 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/24 17:40:37 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 00:33:03 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-#ifdef TEST
+
+#include <stdlib.h>
+
+#if defined(TEST)
 #include <stdio.h>
 #endif
 
@@ -63,7 +66,7 @@ static void addtype(S32 **types, S32 *types_size, S32 *types_max, enum e_arg_typ
 	*types_max = (*types_max) > index ? (*types_max) : index;
 }
 
-void build_arg_table(const_string fmt, va_list vaargs, U64 **args)
+bool build_arg_table(const_string fmt, va_list vaargs, U64 **args)
 {
 	S32 stattypes[STATIC_SIZE] = {T_UNUSED};
 	S32 *types = stattypes;
@@ -72,6 +75,7 @@ void build_arg_table(const_string fmt, va_list vaargs, U64 **args)
 	S32 nextarg = 0;
 	S32 pos_nextarg;
 	S32 n2;
+	U64 *out;
 
 	while (*fmt)
 	{
@@ -109,7 +113,7 @@ void build_arg_table(const_string fmt, va_list vaargs, U64 **args)
 
 		case 'D':
 			flags |= FL_T_LONG;
-			FALLTHROUGH;
+			/* fallthrough */
 		case 'd':
 		case 'i':
 			if (flags & FL_T_LONGLONG)
@@ -132,7 +136,7 @@ void build_arg_table(const_string fmt, va_list vaargs, U64 **args)
 		case 'U':
 		case 'O':
 			flags |= FL_T_LONGLONG;
-			FALLTHROUGH;
+			/* fallthrough */
 		case 'X':
 		case 'x':
 		case 'u':
@@ -165,7 +169,9 @@ void build_arg_table(const_string fmt, va_list vaargs, U64 **args)
 	}
 
 	types_max += 1;
-	U64 *out = malloc(sizeof(U64) * types_max);
+	//TODO: buffer static global, mais faire gaffe au races conditions
+	if (UNLIKELY((out = malloc(sizeof(U64) * types_max)) == NULL))
+		return FALSE;
 
 	for (int i = 0; i < types_max; i++)
 	{
@@ -227,9 +233,10 @@ void build_arg_table(const_string fmt, va_list vaargs, U64 **args)
 	*args = out;
 	if (types != stattypes)
 		free(types);
+	return TRUE;
 }
 
-#ifdef TEST
+#if defined(TEST)
 /*
 void f(const_string fmt, ...)
 {

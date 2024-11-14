@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/02 23:01:54 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/02 23:03:09 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_LZSS_H
+#if !defined(LIBFT_LZSS_H)
 # define LIBFT_LZSS_H
 
 # include "libft/_libft.h"

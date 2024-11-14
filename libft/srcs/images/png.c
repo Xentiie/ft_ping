@@ -6,7 +6,7 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 01:37:21 by reclaire          #+#    #+#             */
-/*   Updated: 2024/08/27 14:52:13 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:05:11 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,13 @@ if indexed color, can't parse if PLTE comes after data
 */
 
 #include "libft_int.h"
+#include "libft/images.h"
+#include "libft/io.h"
+#include "libft/maths.h"
+#include "libft/strings.h"
+#include "libft/compression/deflate.h"
+#include "libft/compression/gzip.h"
+#include "libft/crypt/crc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,13 +34,13 @@ if indexed color, can't parse if PLTE comes after data
 #define reverse64(n) __builtin_bswap64(n)
 
 // png always starts with '137 80 78 71 13 10 26 10'
-static bool check_png_sig(file f)
+static bool check_png_sig(filedesc f)
 {
 	const U8 png_sig[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 	U8 buff[8];
 
 	if (
-		ft_fread(f, (char *)buff, sizeof(buff)) != sizeof(buff) ||
+		ft_read(f, (char *)buff, sizeof(buff)) != sizeof(buff) ||
 		ft_memcmp(buff, png_sig, sizeof(png_sig)))
 		return FALSE;
 	return TRUE;
@@ -141,7 +148,7 @@ S32 sh_png_paeth_predict(S32 a, S32 b, S32 c)
 	return c;
 }
 
-FUNCTION_HOT t_png_img *ft_load_png(file f, bool verbose)
+FUNCTION_HOT t_png_img *ft_load_png(filedesc f, bool verbose)
 {
 	// A valid PNG image must contain an IHDR chunk, one or more IDAT chunks, and an IEND chunk.
 
@@ -152,10 +159,10 @@ FUNCTION_HOT t_png_img *ft_load_png(file f, bool verbose)
 		if (UNLIKELY(verbose))                                                                \
 		{                                                                                     \
 			if (ft_errno != FT_OK)                                                            \
-				ft_dprintf(ft_stderr, "(ft_errno: %d:%s) ", ft_errno, ft_strerror(ft_errno)); \
-			ft_dprintf(ft_stderr, "png error: ");                                             \
-			ft_dprintf(ft_stderr, __VA_ARGS__);                                               \
-			ft_dprintf(ft_stderr, "\n");                                                      \
+				ft_fprintf(ft_fstderr, "(ft_errno: %d:%s) ", ft_errno, ft_strerror(ft_errno)); \
+			ft_fprintf(ft_fstderr, "png error: ");                                             \
+			ft_fprintf(ft_fstderr, __VA_ARGS__);                                               \
+			ft_fprintf(ft_fstderr, "\n");                                                      \
 		}                                                                                     \
 		if (critical)                                                                         \
 			goto png_error;                                                                   \
@@ -194,9 +201,9 @@ next_chunk:
 	buffer = __buffer;
 
 	// Chunk length/type
-	ASSERT(TRUE, ft_fread(f, (char *)&chunk_length, sizeof(U32)) == sizeof(U32), "Couldn't read chunk #%d length", chunk_n);
+	ASSERT(TRUE, ft_read(f, (char *)&chunk_length, sizeof(U32)) == sizeof(U32), "Couldn't read chunk #%d length", chunk_n);
 	chunk_length = reverse32(chunk_length);
-	ASSERT(TRUE, ft_fread(f, (char *)&chunk_type_code, sizeof(U32)) == sizeof(U32), "Couldn't read chunk #%d type code", chunk_n);
+	ASSERT(TRUE, ft_read(f, (char *)&chunk_type_code, sizeof(U32)) == sizeof(U32), "Couldn't read chunk #%d type code", chunk_n);
 	if (UNLIKELY(chunk_n == 1))
 		ASSERT(TRUE, chunk_type_code == CHUNK_IHDR, "First chunk isn't IDHR");
 
@@ -218,11 +225,11 @@ next_chunk:
 	// Read whole chunk and validate CRC
 	{
 		U64 bytes_read = 0, total_read = 0;
-		while ((bytes_read = ft_fread(f, (char *)(buffer + total_read), chunk_length - total_read)) > 0)
+		while ((bytes_read = ft_read(f, (char *)(buffer + total_read), chunk_length - total_read)) > 0)
 			total_read += bytes_read;
 		ASSERT(TRUE, total_read == chunk_length, "Error reading chunk #%d", chunk_n);
 
-		ASSERT(TRUE, ft_fread(f, (char *)&crc, sizeof(U32)) == sizeof(U32), "Couldn't read chunk #%d CRC", chunk_n);
+		ASSERT(TRUE, ft_read(f, (char *)&crc, sizeof(U32)) == sizeof(U32), "Couldn't read chunk #%d CRC", chunk_n);
 		crc = reverse32(crc);
 		U32 current_crc = ft_crc32(crc_buffer, chunk_length + 4);
 		ASSERT(TRUE, current_crc == crc, "Invalid CRC on chunk #%d (is:%#x should be:%#x)", chunk_n, current_crc, crc);
@@ -323,17 +330,17 @@ next_chunk:
 
 			reading_IDAT = 1;
 
-			file test_file = ft_fopen("test.gz", "w+");
+			filedesc test_file = ft_open("test.gz", "w+");
 
 			U8 header_buf[200];
 			t_gzip_header header = {0};
 			header.filename = "test";
 			U64 header_size = ft_gzip_write_header(header_buf, sizeof(header_buf), &header);
 
-			ft_fwrite(test_file, (char *)header_buf, header_size);
-			ft_fwrite(test_file, (char *)buffer, chunk_length);
+			ft_write(test_file, (char *)header_buf, header_size);
+			ft_write(test_file, (char *)buffer, chunk_length);
 
-			ft_fclose(test_file);
+			ft_close(test_file);
 
 		}
 

@@ -6,13 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/19 02:27:57 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/24 23:34:35 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:08:20 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/bitstreams.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 void ft_lzss_compress(U8 *data, U64 len, t_bitstream *stream, U64 window_max_size, U64 lookahead_size)
 {
@@ -52,13 +52,13 @@ void ft_lzss_compress(U8 *data, U64 len, t_bitstream *stream, U64 window_max_siz
 			ft_bstrm_write_bit(stream, 1);
 			ft_bstrm_write_bytes(stream, 4, (U8*)&offset);
 			ft_bstrm_write_bytes(stream, 4, (U8*)&size);
-#ifdef DEBUG_LZSS
+#if defined(DEBUG_LZSS)
 			printf("(ref:%d:%d) ", offset, size);
 #endif
 		}
 		else
 		{
-#ifdef DEBUG_LZSS
+#if defined(DEBUG_LZSS)
 			if (ft_isalnum(*data))
 				printf("(lit:%c) ", *data);
 			else
@@ -88,7 +88,7 @@ U64 ft_lzss_decompress(t_bitstream *stream_compressed, U8 *out, U64 len)
 		{
 			//LITTERAL
 			U8 b = ft_bstrm_read_byte(&stream);
-#ifdef DEBUG_LZSS
+#if defined(DEBUG_LZSS)
 			if (ft_isalnum(b))
 				printf("(lit:%c n:%lu) ", b, out_n);
 			else
@@ -106,7 +106,7 @@ U64 ft_lzss_decompress(t_bitstream *stream_compressed, U8 *out, U64 len)
 			U32 length;
 			ft_bstrm_read_bytes(&stream, 4, (U8*)&offset);
 			ft_bstrm_read_bytes(&stream, 4, (U8*)&length);
-#ifdef DEBUG_LZSS
+#if defined(DEBUG_LZSS)
 			printf("(ref:%d:%d n:%lu) ", offset, length, out_n);
 			fflush(stdout);
 #endif

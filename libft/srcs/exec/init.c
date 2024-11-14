@@ -6,13 +6,17 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 02:39:37 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/14 16:45:21 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:01:39 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/strings.h"
+#include "libft/lists.h"
 #include "exec_int.h"
+
 #include <stdarg.h>
+#include <stdlib.h>
 
 struct s_exec_infos *ft_execinit(string prog, string arg, ...)
 {

@@ -6,13 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 01:17:38 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/16 16:24:38 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:51:37 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <math.h>
 #include "libft_int.h"
+#include "libft/maths.h"
 
+#include <math.h>
 
 t_v2	ft_rand_circle(U32 seed)
 {

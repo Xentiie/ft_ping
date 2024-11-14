@@ -6,12 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/16 14:31:45 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/16 16:25:01 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:26:44 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#include <math.h>
+#include "libft/limits.h"
 
 static S32 _irand_seed = 1;
 void ft_srand(S32 seed)

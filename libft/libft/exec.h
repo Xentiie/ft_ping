@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 02:03:27 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/14 02:59:48 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_EXEC_H
+#if !defined(LIBFT_EXEC_H)
 # define LIBFT_EXEC_H
 
 # include "_libft.h"

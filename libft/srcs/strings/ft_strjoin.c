@@ -6,12 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 15:42:29 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/03 03:19:39 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:35:14 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#include <stdarg.h>
+#include "libft/strings.h"
+
+#include <stdlib.h>
 
 string	ft_strjoin(const_string s1, const_string s2)
 {

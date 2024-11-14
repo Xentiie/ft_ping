@@ -6,13 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/06 22:37:50 by reclaire          #+#    #+#             */
-/*   Updated: 2024/07/02 22:20:12 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:50:30 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-
-// 3.7
+#include "libft/maths.h"
 
 F32	ft_clampf(F32 min, F32 max, F32 v)
 {

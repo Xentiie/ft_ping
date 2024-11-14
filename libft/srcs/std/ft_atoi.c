@@ -6,12 +6,15 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 13:51:00 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/25 05:14:26 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:56:39 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#ifdef TEST
+#include "libft/strings.h"
+#include "libft/limits.h"
+
+#if defined(TEST)
 # include <stdio.h>
 #endif
 
@@ -31,16 +34,16 @@ S32	ft_atoi(const_string str)
 	if (str[i] == '-' || str[i] == '+')
 		i++;
 
-	while (ft_isdigit(str[i]) && str[i] != '\0')
+	while (ft_isdigit(str[i]) && str[i] != '\0' && result <= ((U64)S32_MAX + 1))
 	{
 		result = result * 10 + (str[i] - '0');
 		i++;
 	}
 
 	if (result > S32_MAX && neg > 0)
-		return (0);
+		return (S32_MAX);
 	if (result > (U64)(S32_MAX)+1 && neg < 0)
-		return (0);
+		return (S32_MIN);
 	return (result*neg);
 }
 
@@ -136,7 +139,7 @@ S32	ft_atoi_bl(const_string base, const_string str, U64 *len)
 	return (result*neg);
 }
 
-#ifdef TEST
+#if defined(TEST)
 
 #define _xstr(a) _str(a)
 #define _str(a) #a

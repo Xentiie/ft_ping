@@ -6,11 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/01 20:13:02 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:28:45 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:48:54 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/lists.h"
 
 void	ft_lstiter(t_list *lst, void (*f)(void *))
 {

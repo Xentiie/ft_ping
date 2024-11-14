@@ -6,13 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/19 15:15:36 by reclaire          #+#    #+#             */
-/*   Updated: 2024/07/01 23:51:11 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:08:27 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/std.h"
 
-#ifdef TEST_GZIP_DEFLATE
+#if defined(TEST_GZIP_DEFLATE)
 #include "libft/compression/deflate.h"
 #include "libft/compression/gzip.h"
 #include "libft/io.h"

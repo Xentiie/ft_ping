@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_fmode.c                                         :+:      :+:    :+:   */
+/*   fmode.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/14 00:41:14 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/19 23:18:58 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:26 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef FT_OS_WIN
+#if defined(FT_OS_WIN)
 #define __S_IFMT   _S_IFMT
 #define __S_IFCHR  _S_IFCHR
 #define __S_IFDIR  _S_IFDIR

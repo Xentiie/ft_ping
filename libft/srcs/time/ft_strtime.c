@@ -6,11 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/05 18:12:39 by reclaire          #+#    #+#             */
-/*   Updated: 2024/04/11 18:55:36 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/11 17:34:28 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/time.h"
+
 #include <time.h>
 #include <stdio.h>
 

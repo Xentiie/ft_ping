@@ -6,11 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/12 16:23:40 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:36:29 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:32:22 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+
+#include <stdlib.h>
 
 #define INDEX(i) (((U8 *)a) + ((i) * elem_size))
 

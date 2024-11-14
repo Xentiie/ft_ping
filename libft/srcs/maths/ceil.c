@@ -6,11 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 16:38:34 by reclaire          #+#    #+#             */
-/*   Updated: 2024/07/02 22:18:56 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:50:26 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/maths.h"
+
 #include <math.h>
 
 F32		ft_ceil(F32 n)		{ return ceil(n); }

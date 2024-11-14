@@ -6,11 +6,16 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/17 19:03:18 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 17:39:52 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:40:00 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/compression/huffman.h"
+#include "libft/lists.h"
+#include "libft/io.h"
+#include "libft/btree.h"
+#include <stdlib.h>
 
 static void pr_tree(void *n)
 {
@@ -125,8 +130,7 @@ t_huffman_node *ft_create_huffman_tree(U8 *data, U64 len, t_huffman_node ***out_
 			if (freq_table[i])
 				count++;
 
-		nodes = malloc(sizeof(t_huffman_node *) * count);
-		if (!nodes)
+		if (UNLIKELY((nodes = malloc(sizeof(t_huffman_node *) * count)) == NULL))
 			__FTRETURN_ERR(NULL, FT_EOMEM);
 #define FAIL_CLEANUP(n, err)       \
 	do                             \
@@ -142,8 +146,7 @@ t_huffman_node *ft_create_huffman_tree(U8 *data, U64 len, t_huffman_node ***out_
 		{
 			if (freq_table[i] == 0)
 				continue;
-			nodes[j] = malloc(sizeof(t_huffman_node));
-			if (nodes[j] == NULL)
+			if (UNLIKELY((nodes[j] = malloc(sizeof(t_huffman_node))) == NULL))
 				FAIL_CLEANUP(j, FT_EOMEM);
 			nodes[j]->symbol = i;
 			nodes[j]->n = freq_table[i];

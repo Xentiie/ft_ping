@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 23:45:18 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/26 21:56:28 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_BITSTREAMS_H
+#if !defined(LIBFT_BITSTREAMS_H)
 #define LIBFT_BITSTREAMS_H
 
 typedef struct s_bitstream

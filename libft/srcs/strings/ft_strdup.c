@@ -6,112 +6,72 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 14:51:38 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/03 03:15:46 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/11 17:27:29 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/strings.h"
 
-string	ft_strdup(const_string str)
+#include <stdlib.h>
+
+string ft_strdup(const_string str)
 {
-	if (str == NULL)
-		__FTRETURN_ERR(NULL, FT_EINVPTR);
-
-	U64 l = ft_strlen(str);
-	string dup = malloc((l + 1) * sizeof(U8));
-	if (dup == NULL)
-		__FTRETURN_ERR(NULL, FT_EOMEM);
-
-	U64 c = 0;
-	while (c < l)
-	{
-		dup[c] = str[c];
-		c++;
-	}
-	dup[c] = '\0';
-
-	__FTRETURN_OK(dup);
+	return ft_strdup_l(str, NULL);
 }
 
-string	ft_strdup_l(const_string str, U64 *len)
+string ft_strdup_l(const_string str, U64 *len)
 {
-	if (str == NULL)
+	U64 l;
+	string dup;
+
+	if (len == NULL)
+		len = &l;
+
+	if (UNLIKELY(str == NULL))
 	{
-		if (len)
-			*len = 0;
+		*len = 0;
 		__FTRETURN_ERR(NULL, FT_EINVPTR);
 	}
 
-	U64 l = ft_strlen(str);
-	string dup = malloc((l + 1) * sizeof(U8));
-	if (dup == NULL)
+	*len = ft_strlen(str);
+	if (UNLIKELY((dup = malloc(sizeof(U8) * ((*len) + 1))) == NULL))
 	{
-		if (len)
-			*len = 0;
+		*len = 0;
 		__FTRETURN_ERR(NULL, FT_EOMEM);
 	}
 
-	U64 c = 0;
-	while (c < l)
-	{
-		dup[c] = str[c];
-		c++;
-	}
-	dup[c] = '\0';
-
-	*len = l;
+	ft_memcpy(dup, str, (*len) + 1);
 	__FTRETURN_OK(dup);
 }
 
 string ft_strndup(const_string str, U64 n)
 {
-	if (str == NULL)
-		__FTRETURN_ERR(NULL, FT_EINVPTR);
-
-	U64 l = ft_strlen(str);
-	l = l < n ? l : n;
-	string dup = malloc((l + 1) * sizeof(U8));
-	if (dup == NULL)
-		__FTRETURN_ERR(NULL, FT_EOMEM);
-
-	U64 c = 0;
-	while (c < l)
-	{
-		dup[c] = str[c];
-		c++;
-	}
-	dup[c] = '\0';
-
-	__FTRETURN_OK(dup);
+	return ft_strndup_l(str, n, NULL);
 }
 
 string ft_strndup_l(const_string str, U64 n, U64 *len)
 {
-	if (str == NULL)
+	U64 l;
+	string dup;
+
+	if (len == NULL)
+		len = &l;
+
+	if (UNLIKELY(str == NULL))
 	{
-		if (len)
-			*len = 0;
+		*len = 0;
 		__FTRETURN_ERR(NULL, FT_EINVPTR);
 	}
 
-	U64 l = ft_strlen(str);
-	l = l < n ? l : n;
-	string dup = malloc((l + 1) * sizeof(U8));
-	if (dup == NULL)
+	*len = ft_strlen(str);
+	(*len) = (*len) < n ? (*len) : n;
+	if (UNLIKELY((dup = malloc((sizeof(U8) * (*len) + 1))) == NULL))
 	{
-		if (len)
-			*len = 0;
+		*len = 0;
 		__FTRETURN_ERR(NULL, FT_EOMEM);
 	}
 
-	U64 c = 0;
-	while (c < l)
-	{
-		dup[c] = str[c];
-		c++;
-	}
-	dup[c] = '\0';
-
-	*len = l;
+	ft_memcpy(dup, str, (*len) + 1);
 	__FTRETURN_OK(dup);
 }

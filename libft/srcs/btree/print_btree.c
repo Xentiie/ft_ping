@@ -6,12 +6,13 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/17 18:38:50 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/19 23:21:24 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:52:24 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
 #include "libft/io.h"
+#include "libft/lists.h"
 
 static void p_tabs(t_list *queue)
 {
@@ -47,7 +48,9 @@ static void p_show(void *node, t_list **queue, void *(*get_left)(void *node), vo
 
 void ft_print_tree(void *tree, void *(*get_left)(void *node), void*(*get_right)(void *node), void (*pr_val)(void *node))
 {
-	t_list *queue = NULL;
+	t_list *queue;
+	
+	queue = NULL;
 	p_show(tree, &queue, get_left, get_right, pr_val);
 	ft_lstclear(&queue, NULL);
 }

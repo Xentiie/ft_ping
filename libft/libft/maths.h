@@ -6,20 +6,15 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 19:45:20 by reclaire          #+#    #+#             */
-/*   Updated: 2024/07/02 23:05:30 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:33:29 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_MATHS_H
+#if !defined(LIBFT_MATHS_H)
 #define LIBFT_MATHS_H
 
 # include "_libft.h"
 # include <math.h>
-
-#if defined(__cplusplus)
-extern "C"
-{
-#endif
 
 #if !defined(FT_PI)
 #define FT_PI 3.14159265358979323846f
@@ -41,7 +36,7 @@ extern "C"
 # define FT_F32_PZERO FT_U32_F32(0x00000000)			// 0 00000000 00000000000000000000000
 # define FT_F32_NZERO FT_U32_F32(0x80000000)			// 1 00000000 00000000000000000000000
 
-# ifdef INFINITY
+# if defined(INFINITY)
 #  define FT_F32_PINFINITY INFINITY						// 0 11111111 00000000000000000000000
 #  define FT_F32_NINFINITY -INFINITY					// 1 11111111 00000000000000000000000
 #  define FT_F32_INF FT_F32_PINFINITY
@@ -51,7 +46,7 @@ extern "C"
 #  define FT_F32_INF FT_F32_PINFINITY
 # endif
 
-# ifdef NAN
+# if defined(NAN)
 #  define FT_F32_PQNAN NAN								// 0 11111111 1??????????????????????
 #  define FT_F32_NQNAN -NAN								// 1 11111111 1??????????????????????
 #  define FT_F32_QNAN FT_F32_PQNAN
@@ -381,9 +376,5 @@ Returns FT_F32_QNAN if lines are parallel or coincident (overlapping)
 */
 t_v2 ft_line_intersect(t_v2 l1p1, t_v2 l1p2, t_v2 l2p1, t_v2 l2p2);
 t_v2 ft_bezier_interp(t_v2 p1, t_v2 p2, t_v2 p3, F32 t);
-
-#if defined(__cplusplus)
-}
-#endif
 
 #endif

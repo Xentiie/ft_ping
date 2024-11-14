@@ -26,7 +26,7 @@
 ** preference and is probably available to all Win32 platforms.
 */
 
-#ifdef HAVE_CONFIG_H
+#if defined(HAVE_CONFIG_H)
 #include "config.h"
 #else
 #define HAVE_GETTIMEOFDAY /* Sensible default */
@@ -81,16 +81,17 @@
 
 #endif /* Various clock types */
 
-#include "libft_int.h" /* Configuration independent */
+#include "libft_int.h"
+#include "libft/time.h"	
 
 #include <stdio.h>
 #include <sys/types.h>
 
-#ifdef JLSS_NEED_TIME_H
+#if defined(JLSS_NEED_TIME_H)
 #include <time.h>
 #endif /* JLSS_NEED_TIME_H */
 
-#ifdef JLSS_NEED_SYS_TIME_H
+#if defined(JLSS_NEED_SYS_TIME_H)
 #include <sys/time.h>
 #endif /* JLSS_NEED_SYS_TIME_H */
 
@@ -161,8 +162,8 @@ void ft_clk_get(t_time *t)
 #include <sys/times.h>
 #include <limits.h> /* CLK_TCK */
 
-#ifndef CLK_TCK
-#ifdef HZ
+#if !defined(CLK_TCK)
+#if defined(HZ)
 #define CLK_TCK HZ
 #else
 #define CLK_TCK 100 /* Take a guess -- not good but works OK mostly */
@@ -189,7 +190,7 @@ void clk_get(t_time *t)
 
 #elif defined HAVE_CLOCK
 
-#ifndef CLOCKS_PER_SEC
+#if !defined(CLOCKS_PER_SEC)
 error HAVE_CLOCK defined but CLOCKS_PER_SEC undefined
 #endif
 
@@ -347,7 +348,7 @@ t_time ft_clk_from_timestamp(U64 timestamp)
 	};
 }
 
-#ifndef TIMER_VERSION_1
+#if !defined(TIMER_VERSION_1)
 /* Simpler formatting interface because of structure containing buffer */
 /* Old interface is retained, so recompilation is sufficient for old code */
 #pragma GCC diagnostic push

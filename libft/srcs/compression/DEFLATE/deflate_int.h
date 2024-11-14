@@ -6,14 +6,16 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 15:06:59 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/20 17:05:05 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DEFLATE_H
+#if !defined(DEFLATE_H)
 # define DEFLATE_H
 
 # include "libft_int.h"
+
+# include "libft/compression/deflate.h"
 
 // clang-format off
 struct s_ll_code

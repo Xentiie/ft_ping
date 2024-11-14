@@ -6,18 +6,18 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/25 03:37:06 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/25 04:28:58 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:26 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#ifdef TEST
+#if defined(TEST)
 #include <stdio.h>
 #include <math.h>
 #endif
 
 
-#ifdef TEST
+#if defined(TEST)
 typedef union u_f_to_bits
 {
 	F32 f;

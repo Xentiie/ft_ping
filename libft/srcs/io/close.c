@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_fclose.c                                        :+:      :+:    :+:   */
+/*   close.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/01/17 13:54:18 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/29 01:58:58 by reclaire         ###   ########.fr       */
+/*   Created: 2024/11/06 01:47:39 by reclaire          #+#    #+#             */
+/*   Updated: 2024/11/14 00:43:59 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft_int.h"
+#include "file.h"
+#include "libft/io.h"
+
+#include <stdlib.h>
 
 # if defined(FT_OS_WIN)
 #  include <windows.h>
-//TODO: file != HANDLE, check if everything works ok on 32/64 bits systems
-void	ft_fclose(file fd)
+void	ft_close(filedesc fd)
 {
-	if (fd == ((file)-1))
+	if (fd == ((filedesc)-1))
 		__FTRETURN_ERR(, FT_EINVVAL);
 
 	if (!CloseHandle(((HANDLE)fd)))
@@ -25,12 +27,39 @@ void	ft_fclose(file fd)
 
 	__FTRETURN_OK();
 }
+
+/* socket close */
+void	ft_sclose(filedesc fd)
+{
+	
+}
+
 # else
 #  include <unistd.h>
-void	ft_fclose(file fd)
+void	ft_close(filedesc fd)
 {
 	close(fd);
-
 	__FTRETURN_OK();
 }
+
+void	ft_sclose(filedesc fd)
+{
+	ft_close(fd);
+}
 # endif
+
+void ft_fdestroy(t_file *file)
+{
+	ft_ffilelock(file);
+	ft_fflush(file);
+	free(file->buff);
+
+	__ft_flockcleanup(file);
+	free(file);
+}
+
+void ft_fclose(t_file *file)
+{
+	ft_fdestroy(file);
+	ft_close(file->fd);
+}

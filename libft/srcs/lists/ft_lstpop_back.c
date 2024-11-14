@@ -6,11 +6,12 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/17 17:28:17 by reclaire          #+#    #+#             */
-/*   Updated: 2024/05/17 18:18:13 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:49:06 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/lists.h"
 
 void *ft_lstpop_back(t_list **lst)
 {

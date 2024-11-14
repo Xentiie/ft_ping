@@ -6,14 +6,15 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 15:37:41 by reclaire          #+#    #+#             */
-/*   Updated: 2024/02/20 18:01:29 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 21:55:03 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#include <stdio.h>
+#include "libft/lists.h"
+#include "libft/strings.h"
 
-void ft_path_parse(t_list **lst, string path)
+void ft_path_parse(t_list **lst, const_string path)
 {
 	U64 i = 0;
 	U64 st = 0;

@@ -6,12 +6,17 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/02/23 20:49:50 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:37:03 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/10 22:46:57 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
-#ifdef TEST
+#include "libft/strings.h"
+#include "libft/limits.h"
+
+#include <stdlib.h>
+
+#if defined(TEST)
 #include <stdio.h>
 #endif
 
@@ -64,14 +69,13 @@ U64 _ft_utoa(const_string base, U64 base_len, U64 n_digits, U64 nb, string out, 
 	__FTRETURN_OK(len);
 }
 
-
-
 string ft_utoa(U64 n)
 {
-	U64 n_digits = _ft_utoa(NULL, 0, 0, n, NULL, S64_MAX);
-	
-	string out = malloc(sizeof(char) * (n_digits + 1));
-	if (UNLIKELY(out == NULL))
+	U64 n_digits;
+	string out;
+
+	n_digits = _ft_utoa(NULL, 0, 0, n, NULL, S64_MAX);
+	if (UNLIKELY((out = malloc(sizeof(char) * (n_digits + 1))) == NULL))
 		__FTRETURN_ERR(NULL, FT_EOMEM);
 	out[n_digits] = '\0';
 
@@ -81,14 +85,16 @@ string ft_utoa(U64 n)
 
 string ft_utoa_l(U64 n, U64 *len)
 {
-	U64 n_digits = _ft_utoa(NULL, 0, 0, n, NULL, S64_MAX);
-	
-	string out = malloc(sizeof(char) * (n_digits + 1));
-	if (UNLIKELY(out == NULL))
+	U64 n_digits;
+	string out;
+	U64 l;
+
+	n_digits = _ft_utoa(NULL, 0, 0, n, NULL, S64_MAX);
+	if (UNLIKELY((out = malloc(sizeof(char) * (n_digits + 1))) == NULL))
 		__FTRETURN_ERR(NULL, FT_EOMEM);
 	out[n_digits] = '\0';
 
-	U64 l = _ft_utoa(NULL, 0, n_digits, n, out, S64_MAX);
+	l = _ft_utoa(NULL, 0, n_digits, n, out, S64_MAX);
 	if (len)
 		*len = l;
 	return out;
@@ -96,22 +102,27 @@ string ft_utoa_l(U64 n, U64 *len)
 
 U64 ft_utoa_s(U64 n, string str)
 {
-	U64 n_digits = _ft_utoa(NULL, 0, 0, n, NULL, S64_MAX);
+	U64 n_digits;
+
+	n_digits = _ft_utoa(NULL, 0, 0, n, NULL, S64_MAX);
 	return _ft_utoa(NULL, 0, n_digits, n, str, S64_MAX);
 }
 
 U64 ft_utoa_sn(U64 n, string str, U64 maxlen)
 {
-	U64 n_digits = _ft_utoa(NULL, 0, 0, n, NULL, maxlen);
+	U64 n_digits;
+
+	n_digits = _ft_utoa(NULL, 0, 0, n, NULL, maxlen);
 	return _ft_utoa(NULL, 0, n_digits, n, str, maxlen);
 }
 
 string ft_utoa_b(U64 n, const_string base)
 {
-	U64 n_digits = _ft_utoa(base, 0, 0, n, NULL, S64_MAX);
-	
-	string out = malloc(sizeof(char) * (n_digits + 1));
-	if (UNLIKELY(out == NULL))
+	U64 n_digits;
+	string out;
+
+	n_digits = _ft_utoa(base, 0, 0, n, NULL, S64_MAX);
+	if (UNLIKELY((out = malloc(sizeof(char) * (n_digits + 1))) == NULL))
 		__FTRETURN_ERR(NULL, FT_EOMEM);
 	out[n_digits] = '\0';
 
@@ -119,8 +130,7 @@ string ft_utoa_b(U64 n, const_string base)
 	return out;
 }
 
-
-#ifdef TEST
+#if defined(TEST)
 
 int main()
 {
@@ -131,8 +141,7 @@ int main()
 		(U32)12,
 		(U32)1234,
 		(U32)S32_MAX,
-		(U32)S32_MIN
-	};
+		(U32)S32_MIN};
 
 	U64 l = 0;
 	string str;
@@ -144,11 +153,10 @@ int main()
 	printf("%X\n", 1118);
 	printf("%p\n", (void *)(1118));
 
-	printf("%d\n\n", sizeof(tests)/sizeof(*tests));
+	printf("%d\n\n", sizeof(tests) / sizeof(*tests));
 	fflush(stdout);
 
-
-	for (int i = 0; i < sizeof(tests)/sizeof(*tests); i++)
+	for (int i = 0; i < sizeof(tests) / sizeof(*tests); i++)
 	{
 		str = ft_utoa(tests[i]);
 		printf("str:|%s| expected:|%u|\n", str, tests[i], l);
@@ -157,17 +165,17 @@ int main()
 
 	printf("\n");
 
-	for (int i = 0; i < sizeof(tests)/sizeof(*tests); i++)
+	for (int i = 0; i < sizeof(tests) / sizeof(*tests); i++)
 	{
 		str = ft_utoa_l(tests[i], &l);
 		printf("str:|%s| expected:|%u| len=%lld\n", str, tests[i], l);
-		free(str);	
+		free(str);
 	}
 
 	printf("\n");
 
 	str = malloc(sizeof(char) * (S32_MAX_MAG + 2));
-	for (int i = 0; i < sizeof(tests)/sizeof(*tests); i++)
+	for (int i = 0; i < sizeof(tests) / sizeof(*tests); i++)
 	{
 		ft_bzero(str, sizeof(char) * (S32_MAX_MAG + 2));
 		l = ft_utoa_s(tests[i], str);
@@ -175,7 +183,7 @@ int main()
 	}
 
 	printf("\n");
-	for (int i = 0; i < sizeof(tests)/sizeof(*tests); i++)
+	for (int i = 0; i < sizeof(tests) / sizeof(*tests); i++)
 	{
 		ft_bzero(str, sizeof(char) * (S32_MAX_MAG + 2));
 		l = ft_utoa_sn(tests[i], str, 3);
@@ -184,7 +192,7 @@ int main()
 	free(str);
 
 	printf("\n");
-	for (int i = 0; i < sizeof(tests)/sizeof(*tests); i++)
+	for (int i = 0; i < sizeof(tests) / sizeof(*tests); i++)
 	{
 		str = ft_utoa_b(tests[i], "01");
 		printf("str:|%s| expected:|%u| len=%lld\n", str, tests[i], l);
@@ -192,7 +200,7 @@ int main()
 	}
 
 	printf("\n");
-	for (int i = 0; i < sizeof(tests)/sizeof(*tests); i++)
+	for (int i = 0; i < sizeof(tests) / sizeof(*tests); i++)
 	{
 		str = ft_utoa_b(tests[i], "0123456789abcdef");
 		printf("str:|%s| expected:|%u| len=%lld\n", str, tests[i], l);

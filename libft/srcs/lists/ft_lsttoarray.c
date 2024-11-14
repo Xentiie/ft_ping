@@ -10,8 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
 #include "libft_int.h"
+#include "libft/lists.h"
+
+#include <stdlib.h>
 
 void	**ft_lsttoarray(t_list *lst, U64 *len)
 {

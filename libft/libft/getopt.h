@@ -6,11 +6,11 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/07 01:30:07 by reclaire          #+#    #+#             */
-/*   Updated: 2024/09/04 00:18:48 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:09:42 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LIBFT_GETOPT_H
+#if !defined(LIBFT_GETOPT_H)
 #define LIBFT_GETOPT_H
 
 #include "_libft.h"
@@ -21,22 +21,22 @@ extern S32 ft_opterr;
 extern S32 ft_optchr;
 extern const_string ft_optarg;
 
-#ifndef no_argument
+#if !defined(no_argument)
 #define no_argument 0
 #endif
 
-#ifndef required_argument
+#if !defined(required_argument)
 #define required_argument 1
 #endif
 
-#ifndef optional_argument
+#if !defined(optional_argument)
 #define optional_argument 2
 #endif
 
 typedef struct s_long_opt
 {
 	string name;
-	S32 has_argument;
+	S32 has_argument; /* can be either `no_argument` (0), `required_argument` (1), or `optional_argument` (2) */
 	S32 *flag_ptr;
 	S32 flag_value;
 } t_long_opt;

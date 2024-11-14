@@ -1,45 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_nrange.c                                        :+:      :+:    :+:   */
+/*   file.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/23 10:28:32 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/11 00:34:14 by reclaire         ###   ########.fr       */
+/*   Created: 2024/10/12 00:50:06 by reclaire          #+#    #+#             */
+/*   Updated: 2024/10/22 04:13:43 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#ifndef FILE_H
+#define FILE_H
+
+#define _GNU_SOURCE
 #include "libft_int.h"
+#include <pthread.h>
 
-S32	ft_nrange(S32 **range, S32 min, S32 max)
+#if defined(FT_OS_WIN)
+#include <windows.h>
+#endif
+
+typedef struct s_file
 {
-	S32	size;
-	S32	i;
-	S32	counter;
-	S32	*output;
+	char *buff;
+	U64 buff_size;
+	U64 buff_cnt;
+	bool buffered;
+	filedesc fd;
+}	t_file;
 
-	if (min >= max)
-	{
-		range = NULL;
-		__FTRETURN_OK(0);
-	}
-	size = max - min;
-	output = malloc(sizeof(int) * size);
-	if (UNLIKELY(output == NULL))
-	{
-		*range = NULL;
-		__FTRETURN_ERR(-1, FT_EOMEM);
-	}
+/*
+cleanup lock in lock ht, called from ft_fclose
+*/
+bool __ft_flockcleanup(t_file *fp);
 
-	i = 0;
-	counter = min;
-	while (i < size)
-	{
-		output[i] = counter;
-		counter++;
-		i++;
-	}
-	*range = output;
-	__FTRETURN_OK(size);
-}
+#endif

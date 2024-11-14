@@ -6,11 +6,14 @@
 /*   By: reclaire <reclaire@student.42mulhouse.f    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/21 22:00:12 by reclaire          #+#    #+#             */
-/*   Updated: 2024/06/28 14:01:13 by reclaire         ###   ########.fr       */
+/*   Updated: 2024/11/09 23:10:43 by reclaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft_int.h"
+#include "libft/strings.h"
+#include "libft/compression/gzip.h"
+#include "libft/crypt/crc.h"
 
 /*
 
