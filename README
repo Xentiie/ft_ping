@@ -1,0 +1,11 @@
+Compilation instructions:
+
+Requirements:
+	bash
+	make
+	gcc
+
+In ft_ssl/:
+	./configure
+	make
+	./ft_ping -h
